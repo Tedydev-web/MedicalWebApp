@@ -35,6 +35,118 @@ namespace WebAppYte.Areas.Admin.Controllers
             return View(lichLamViec);
         }
 
+
+
+        [HttpPost]
+        public JsonResult CheckTimeSlotAvailability(DateTime selectedDate, string repeatType, int repeatCount)
+        {
+            List<object> overlaps = new List<object>();
+            for (int i = 0; i <= repeatCount; i++)
+            {
+                DateTime checkDate = selectedDate;
+                switch (repeatType)
+                {
+                    case "day":
+                        checkDate = selectedDate.AddDays(i);
+                        break;
+                    case "week":
+                        checkDate = selectedDate.AddDays(7 * i);
+                        break;
+                    case "month":
+                        checkDate = selectedDate.AddMonths(i);
+                        break;
+                }
+
+                var dayOverlaps = db.LichLamViecs.Where(llv => DbFunctions.TruncateTime(llv.BatDau) == checkDate.Date)
+                    .Select(llv => new { llv.BatDau, llv.KetThuc })
+                    .ToList();
+
+                foreach (var overlap in dayOverlaps)
+                {
+                    overlaps.Add(new
+                    {
+                        date = checkDate.ToString("dd/MM/yyyy"),
+                        timeSlot = overlap.BatDau.Value.ToString("HH:mm") + " - " + overlap.KetThuc.Value.ToString("HH:mm")
+                    });
+                }
+            }
+
+            return Json(new { overlaps = overlaps });
+        }
+
+
+        [HttpPost]
+        public JsonResult CheckOverlap(DateTime batDau, DateTime ketThuc, int IDQuanTri, string repeatType, int repeatCount)
+        {
+            bool isOverlap = false;
+            for (int i = 0; i < repeatCount; i++)
+            {
+                DateTime currentStart = batDau;
+                DateTime currentEnd = ketThuc;
+                switch (repeatType)
+                {
+                    case "day":
+                        currentStart = batDau.AddDays(i);
+                        currentEnd = ketThuc.AddDays(i);
+                        break;
+                    case "week":
+                        currentStart = batDau.AddDays(7 * i);
+                        currentEnd = ketThuc.AddDays(7 * i);
+                        break;
+                    case "month":
+                        currentStart = batDau.AddMonths(i);
+                        currentEnd = ketThuc.AddMonths(i);
+                        break;
+                }
+
+                isOverlap = db.LichLamViecs.Any(llv =>
+                    (llv.BatDau < currentEnd && currentStart < llv.KetThuc) &&
+                    llv.IDQuanTri == IDQuanTri);
+
+                if (isOverlap)
+                {
+                    break;
+                }
+            }
+
+            return Json(new { isOverlap = isOverlap });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("Admin/LichLamViecs/CreateBatch")]
+        public ActionResult CreateBatch(List<EventModel> events, int IDQuanTri, string repeatType, int repeatCount)
+        {
+            if (events == null || !events.Any())
+            {
+                return Json(new { success = false, message = "Danh sách sự kiện trống." });
+            }
+
+            List<object> overlaps = new List<object>();
+
+            foreach (var eventItem in events)
+            {
+
+                LichLamViec lichLamViec = new LichLamViec
+                {
+                    BatDau = eventItem.BatDau,
+                    KetThuc = eventItem.KetThuc,
+                    IDQuanTri = IDQuanTri
+                };
+
+                db.LichLamViecs.Add(lichLamViec);
+            }
+
+            if (overlaps.Any())
+            {
+                return Json(new { success = false, message = "Có trùng lặp trong các khung giờ đã chọn.", overlaps = overlaps });
+            }
+
+            db.SaveChanges();
+            return Json(new { success = true });
+        }
+
+
         public ActionResult Create()
         {
             ViewBag.IDNguoiDung = new SelectList(db.NguoiDungs, "IDNguoiDung", "HoTen");

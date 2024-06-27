@@ -85,10 +85,10 @@
                     {
                         <tr>
                             <td class="centered column-border">
-                                @(item.BatDau.HasValue ? item.BatDau.Value.ToString("M/dd/yyyy - hh:mm:ss tt") : "")
+                                @(item.BatDau.HasValue ? item.BatDau.Value.ToString("dd/MM/yyyy - HH:mm:ss tt") : "")
                             </td>
                             <td class="centered column-border">
-                                @(item.KetThuc.HasValue ? item.KetThuc.Value.ToString("M/dd/yyyy - hh:mm:ss tt") : "")
+                                @(item.KetThuc.HasValue ? item.KetThuc.Value.ToString("dd/MM/yyyy - HH:mm:ss tt") : "")
                             </td>
                             <td class="centered column-border">
                                 @Html.ActionLink("Edit", "Edit", new { id = item.IDLichLamViec }, new { @class = "btn btn-primary btn-sm" }) |

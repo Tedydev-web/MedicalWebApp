@@ -10,8 +10,6 @@
         $(document).ready(function () {
             var selectedDate;
             var events = [];
-            var selectedTimeSlots = [];
-            $('#timeSlots').after('<button id="undoTimeSlotSelection" class="btn btn-warning">Quay lại</button>');
 
             $('#repeatType').change(function () {
                 var selectedRepeatType = $(this).val();
@@ -33,17 +31,9 @@
                 $('#repeatCount').attr('max', maxRepeatCount);
             });
 
-            $('#undoTimeSlotSelection').hide();
-
-            $('input[name="workShift"]').change(function (e) {
+            $('input[name="workShift"]').change(function () {
                 var shift = $(this).attr('id');
                 $('#timeSlots').empty();
-                $('#morningShiftWarning').text('');
-                $('#afternoonShiftWarning').text('');
-
-                var currentTime = moment();
-                var selectedDateMoment = moment(selectedDate);
-                var isToday = selectedDateMoment.isSame(currentTime, 'day');
 
                 var timeSlots = shift === 'morningShift' ? [
                     { start: '07:30', end: '07:55' },
@@ -54,7 +44,7 @@
                     { start: '10:00', end: '10:25' },
                     { start: '10:30', end: '10:55' },
                     { start: '11:00', end: '11:25' },
-                    { start: '07:30', end: '11:25', label: 'Toàn bộ ca sáng', fullShift: true }
+                    { start: '07:30', end: '11:25', label: 'Toàn bộ ca sáng' }
                 ] : [
                     { start: '13:00', end: '13:25' },
                     { start: '13:30', end: '13:55' },
@@ -64,96 +54,49 @@
                     { start: '15:30', end: '15:55' },
                     { start: '16:00', end: '16:25' },
                     { start: '16:30', end: '16:55' },
-                    { start: '13:00', end: '16:55', label: 'Toàn bộ ca chiều', fullShift: true }
+                    { start: '13:00', end: '16:55', label: 'Toàn bộ ca chiều' }
                 ];
 
-                if (isToday) {
-                    timeSlots = timeSlots.filter(function (slot) {
-                        var slotStartTime = moment(slot.start, 'HH:mm');
-                        return currentTime.isBefore(slotStartTime);
-                    });
-                }
-
-                $('#undoTimeSlotSelection').show();
-
-                if (timeSlots.length === 0) {
-                    var warningText = ' Đã hết ca làm việc';
-                    $('#timeSlots').append('<div class="alert alert-info">Đã hết ca làm việc</div>');
-                    e.preventDefault();
-                    if (shift === 'morningShift') {
-                        $('#morningShiftWarning').text(warningText);
-                    } else {
-                        $('#afternoonShiftWarning').text(warningText);
-                    }
-                } else {
-                    timeSlots.forEach(function (slot) {
-                        var btn = $('<button>').addClass('btn btn-info timeSlotBtn').text(slot.label || slot.start)
-                            .data('start', slot.start).data('end', slot.end);
-                        if (slot.fullShift) {
-                            btn.data('fullshift', true);
-                        }
-                        $('#timeSlots').append(btn);
-                    });
-                }
+                timeSlots.forEach(function (slot) {
+                    var btn = $('<button>').addClass('btn btn-info timeSlotBtn').text(slot.label || slot.start)
+                        .data('start', slot.start).data('end', slot.end);
+                    $('#timeSlots').append(btn);
+                });
             });
 
             $('#timeSlots').on('click', '.timeSlotBtn', function () {
                 var startTime = $(this).data('start');
                 var endTime = $(this).data('end');
-                var isFullShift = $(this).data('fullshift');
-
-                selectedTimeSlots.push({ startTime: startTime, endTime: endTime, fullShift: isFullShift });
-
-                $(this).hide();
-
                 var batDau = moment(selectedDate).format('YYYY-MM-DD') + 'T' + startTime;
                 var ketThuc = moment(selectedDate).format('YYYY-MM-DD') + 'T' + endTime;
 
+                // Lấy giá trị hiện tại từ modalBatDau và modalKetThuc
                 var currentBatDau = $('#modalBatDau').val();
                 var currentKetThuc = $('#modalKetThuc').val();
 
+                // Kiểm tra nếu trường không rỗng, thêm dấu phẩy trước giá trị mới
                 var newBatDau = currentBatDau ? currentBatDau + ', ' + startTime : startTime;
                 var newKetThuc = currentKetThuc ? currentKetThuc + ', ' + endTime : endTime;
 
+                // Cập nhật giá trị mới cho modalBatDau và modalKetThuc
                 $('#modalBatDau').val(newBatDau);
                 $('#modalKetThuc').val(newKetThuc);
 
-                if (isFullShift) {
-                    $('#modalBatDau').val(startTime);
-                    $('#modalKetThuc').val(endTime);
-                    $('.timeSlotBtn').not(this).show();
+                if (!checkOverlap(events, batDau, ketThuc)) {
+                    events.push({
+                        BatDau: batDau,
+                        KetThuc: ketThuc
+                    });
+
+                    $('#calendar').fullCalendar('renderEvent', {
+                        title: startTime + ' - ' + endTime,
+                        start: batDau,
+                        end: ketThuc
+                    }, true);
+                } else {
+                    alert('Thời gian đã bị chồng chéo với lịch làm việc khác.');
                 }
             });
-
-            $('#undoTimeSlotSelection').click(function () {
-                if (selectedTimeSlots.length > 0) {
-                    var lastSelectedTimeSlot = selectedTimeSlots.pop();
-
-                    if (lastSelectedTimeSlot.fullShift) {
-                        $('.timeSlotBtn').show();
-                    } else {
-                        $('.timeSlotBtn').each(function () {
-                            var btnStartTime = $(this).data('start');
-                            var btnEndTime = $(this).data('end');
-                            if (btnStartTime === lastSelectedTimeSlot.startTime && btnEndTime === lastSelectedTimeSlot.endTime) {
-                                $(this).show();
-                            }
-                        });
-                    }
-
-                    if (selectedTimeSlots.length === 0) {
-                        $('#modalBatDau').val('');
-                        $('#modalKetThuc').val('');
-                    } else {
-                        var newBatDau = selectedTimeSlots.map(slot => slot.startTime).join(', ');
-                        var newKetThuc = selectedTimeSlots.map(slot => slot.endTime).join(', ');
-                        $('#modalBatDau').val(newBatDau);
-                        $('#modalKetThuc').val(newKetThuc);
-                    }
-                }
-            });
-
-
 
             $('#calendar').fullCalendar({
                 header: {
@@ -167,11 +110,13 @@
                 select: function (start, end) {
                     selectedDate = start;
 
-                    $('#modalBatDau').val('');
-                    $('#modalKetThuc').val('');
+                    var batDau = moment(start).format('HH:mm');
+                    var ketThuc = moment(end).subtract(1, 'seconds').format('HH:mm');
+
+                    $('#modalBatDau').val(batDau);
+                    $('#modalKetThuc').val(ketThuc);
 
                     $('#lichLamViecModal').modal('show');
-
                     $('#calendar').fullCalendar('unselect');
                 },
                 eventLimit: true,
@@ -187,82 +132,8 @@
                 }
             });
 
-            function checkTimeSlotAvailability(selectedDate, repeatType, repeatCount) {
-                    $.ajax({
-                        url: '@Url.Action("CheckTimeSlotAvailability", "LichLamViecs")',
-                        type: 'POST',
-                        data: { selectedDate: selectedDate.format('YYYY-MM-DD'), repeatType: repeatType, repeatCount: repeatCount },
-                        success: function (result) {
-                            if (result.overlaps.length > 0) {
-                                result.overlaps.forEach(function(overlap) {
-                                    var message = "Trùng lặp vào " + overlap.date + " trong mốc thời gian: " + overlap.timeSlot;
-                                    alert(message);
-                                    // Hide the overlapping time slots
-                                    $(".timeSlotBtn").each(function() {
-                                        var btnStartTime = $(this).data('start');
-                                        var btnEndTime = $(this).data('end');
-                                        if (overlap.timeSlot.includes(btnStartTime) && overlap.timeSlot.includes(btnEndTime)) {
-                                            $(this).hide();
-                                        }
-                                    });
-                                });
-                                // Reset the modal if needed
-                                $('#lichLamViecModal').modal('hide');
-                                $('#lichLamViecModal').find('input:text, select').val('');
-                            }
-                        }
-                    });
-                }
-
-
-            function checkOverlap() {
-                var batDau = $('#modalBatDau').val();
-                var ketThuc = $('#modalKetThuc').val();
-                var IDQuanTri = $('#IDQuanTri').val();
-                var repeatType = $('#repeatType').val();
-                var repeatCount = $('#repeatCount').val();
-
-                $.ajax({
-                    url: '@Url.Action("CheckOverlap", "LichLamViecs")',
-                    type: 'POST',
-                    data: { batDau: batDau, ketThuc: ketThuc, IDQuanTri: IDQuanTri, repeatType: repeatType, repeatCount: repeatCount },
-                    success: function (result) {
-                        if (result.isOverlap) {
-                            alert("Có sự trùng lặp trong lịch làm việc.");
-                        } else {
-                        }
-                    }
-                });
-            }
-
-            $('#modalBatDau, #modalKetThuc, #repeatType, #repeatCount').change(checkOverlap);
-
             $('#saveEvents').click(function () {
-                var batDauStr = $('#modalBatDau').val();
-                var ketThucStr = $('#modalKetThuc').val();
-                var batDauArr = batDauStr.split(', ');
-                var ketThucArr = ketThucStr.split(', ');
-
-                var eventsToSave = batDauArr.map(function (startTime, index) {
-                    var endTime = ketThucArr[index];
-                    return {
-                        BatDau: moment(selectedDate).format('YYYY-MM-DD') + 'T' + startTime,
-                        KetThuc: moment(selectedDate).format('YYYY-MM-DD') + 'T' + endTime
-                    };
-                });
-
-                var isOverlap = eventsToSave.some(function (eventToCheck) {
-                    return $('#calendar').fullCalendar('clientEvents', function (event) {
-                        return (event.start < eventToCheck.KetThuc && eventToCheck.BatDau < event.end);
-                    }).length > 0;
-                });
-
-                if (isOverlap) {
-                    alert('Thời gian đã bị chồng chéo với lịch làm việc khác.');
-                    return;
-                }
-
-                if (eventsToSave.length === 0) {
+                if (events.length === 0) {
                     alert('Danh sách sự kiện trống.');
                     return;
                 }
@@ -273,7 +144,7 @@
                     dataType: 'json',
                     data: {
                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
-                        events: eventsToSave,
+                        events: events,
                         IDQuanTri: $('#IDQuanTri').val()
                     },
                     success: function (response) {
@@ -300,13 +171,27 @@
                 });
             }
 
-            $('#createBatch').click(function () {
-                var batDauTimes = $('#modalBatDau').val().split(', ');
-                var ketThucTimes = $('#modalKetThuc').val().split(', ');
-                var repeatType = $('#repeatType').val();
-                var repeatCount = parseInt($('#repeatCount').val(), 10);
 
-                if (batDauTimes.length === 0 || ketThucTimes.length === 0 || !repeatType || isNaN(repeatCount)) {
+            function checkOverlap(events, newBatDau, newKetThuc) {
+                var overlap = false;
+                events.forEach(function (event) {
+                    var eventBatDau = event.BatDau;
+                    var eventKetThuc = event.KetThuc;
+
+                    if (!(moment(newKetThuc) <= moment(eventBatDau) || moment(newBatDau) >= moment(eventKetThuc))) {
+                        overlap = true;
+                    }
+                });
+                return overlap;
+            }
+
+            $('#createBatch').click(function () {
+                var batDauTime = $('#modalBatDau').val();
+                var ketThucTime = $('#modalKetThuc').val();
+                var repeatType = $('#repeatType').val();
+                var repeatCount = $('#repeatCount').val();
+
+                if (!batDauTime || !ketThucTime || !repeatType || !repeatCount) {
                     alert('Vui lòng điền đầy đủ thông tin.');
                     return;
                 }
@@ -314,36 +199,37 @@
                 var events = [];
 
                 for (var i = 0; i <= repeatCount; i++) {
-                    batDauTimes.forEach(function (batDauTime, index) {
-                        var ketThucTime = ketThucTimes[index];
-                        var batDau, ketThuc;
+                var batDau, ketThuc;
+                switch (repeatType) {
+                    case 'month':
+                        batDau = moment(selectedDate).add(i, 'months').format('YYYY-MM-DD') + 'T' + batDauTime;
+                        ketThuc = moment(selectedDate).add(i, 'months').format('YYYY-MM-DD') + 'T' + ketThucTime;
+                        break;
+                    case 'week':
+                        batDau = moment(selectedDate).add(i, 'weeks').format('YYYY-MM-DD') + 'T' + batDauTime;
+                        ketThuc = moment(selectedDate).add(i, 'weeks').format('YYYY-MM-DD') + 'T' + ketThucTime;
+                        break;
+                    case 'day':
+                        batDau = moment(selectedDate).add(i, 'days').format('YYYY-MM-DD') + 'T' + batDauTime;
+                        ketThuc = moment(selectedDate).add(i, 'days').format('YYYY-MM-DD') + 'T' + ketThucTime;
+                        break;
+                    default:
+                        alert('Loại lặp lại không hợp lệ.');
+                        return;
+                }
+                var overlap = checkOverlap(events, batDau, ketThuc);
+                if (overlap) {
+                    alert('Thời gian đã bị chồng chéo với lịch làm việc khác.');
+                    return;
+                }
 
-                        switch (repeatType) {
-                            case 'month':
-                                batDau = moment(selectedDate).add(i, 'months').format('YYYY-MM-DD') + 'T' + batDauTime;
-                                ketThuc = moment(selectedDate).add(i, 'months').format('YYYY-MM-DD') + 'T' + ketThucTime;
-                                break;
-                            case 'week':
-                                batDau = moment(selectedDate).add(i, 'weeks').format('YYYY-MM-DD') + 'T' + batDauTime;
-                                ketThuc = moment(selectedDate).add(i, 'weeks').format('YYYY-MM-DD') + 'T' + ketThucTime;
-                                break;
-                            case 'day':
-                                batDau = moment(selectedDate).add(i, 'days').format('YYYY-MM-DD') + 'T' + batDauTime;
-                                ketThuc = moment(selectedDate).add(i, 'days').format('YYYY-MM-DD') + 'T' + ketThucTime;
-                                break;
-                            default:
-                                alert('Loại lặp lại không hợp lệ.');
-                                return;
-                        }
-
-                        events.push({
-                            BatDau: batDau,
-                            KetThuc: ketThuc,
-                        });
+                    events.push({
+                        BatDau: batDau,
+                        KetThuc: ketThuc,
                     });
                 }
 
-               $.ajax({
+                $.ajax({
                     url: '@Url.Action("CreateBatch", "LichLamViecs", new { area = "Admin" })',
                     type: 'POST',
                     dataType: 'json',
@@ -372,7 +258,6 @@
         });
     </script>
 }
-
 
 <style>
     body {
@@ -430,13 +315,19 @@
         <div class="form-group row">
             <div class="col-md-10 offset-md-2">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#lichLamViecModal">
-                    Chọn lịch làm việc hôm nay - @DateTime.Now.ToString("dd/MM/yyyy")
+                    Chọn lịch làm việc
                 </button>
             </div>
         </div>
     }
 
     <div id="calendar"></div>
+
+    <div class="form-group row">
+        <div class="col-md-10 offset-md-2">
+            <button type="button" class="btn btn-success" id="saveEvents">Lưu</button>
+        </div>
+    </div>
 
     <div class="modal fade" id="lichLamViecModal" tabindex="-1" role="dialog" aria-labelledby="lichLamViecModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -450,8 +341,8 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="workShift">Ca Làm Việc:</label><br />
-                        <input type="radio" id="morningShift" name="workShift" value="morning" /> Sáng<span id="morningShiftWarning" class="text-danger"></span><br />
-                        <input type="radio" id="afternoonShift" name="workShift" value="afternoon" /> Chiều<span id="afternoonShiftWarning" class="text-danger"></span>
+                        <input type="radio" id="morningShift" name="workShift" value="morning" /> Sáng<br />
+                        <input type="radio" id="afternoonShift" name="workShift" value="afternoon" /> Chiều
                     </div>
 
                     <div class="form-group">
@@ -481,13 +372,12 @@
 
                     <div class="form-group">
                         <label for="repeatCount">Số Lần Lặp:</label>
-                        <input type="number" id="repeatCount" class="form-control" min="1" value="0" />
+                        <input type="number" id="repeatCount" class="form-control" min="1" value="1" />
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="saveEvents">Thêm Lịch</button>
+                    <button type="button" class="btn btn-primary" id="addLichLamViec">Thêm Lịch</button>
                     <button type="button" class="btn btn-primary" id="createBatch">Tạo Lịch Hàng Loạt</button>
                 </div>
             </div>
