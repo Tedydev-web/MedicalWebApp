@@ -197,7 +197,6 @@
                                 result.overlaps.forEach(function(overlap) {
                                     var message = "Trùng lặp vào " + overlap.date + " trong mốc thời gian: " + overlap.timeSlot;
                                     alert(message);
-                                    // Hide the overlapping time slots
                                     $(".timeSlotBtn").each(function() {
                                         var btnStartTime = $(this).data('start');
                                         var btnEndTime = $(this).data('end');
@@ -206,7 +205,6 @@
                                         }
                                     });
                                 });
-                                // Reset the modal if needed
                                 $('#lichLamViecModal').modal('hide');
                                 $('#lichLamViecModal').find('input:text, select').val('');
                             }

@@ -5,99 +5,208 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var u = Session["user"] as WebAppYte.Models.NguoiDung;
 }
+<style>
+    .btn-slot {
+        width: calc(50% - 10px); /* 2 cột, mỗi cột chiếm 50% với khoảng cách 10px */
+        margin: 5px;
+        float: left;
+    }
 
-    <style>
-        .btn-slot {
-            width: calc(33.333% - 10px);
-            margin: 5px; 
-            float: left;
-        }
+    .btn-group-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
 
-        .btn-group-wrap {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
+    .form-group.row > div {
+        width: 100%;
+    }
 
-        .form-group.row > div {
-            width: 100%; 
-        }
+    .btn-group-vertical.btn-block {
+        margin-right: -5px;
+    }
 
-        .btn-group-vertical.btn-block {
-            margin-right: -5px;
-        }
+    .btn-slot.morning-slot {
+        background-color: #f0ad4e;
+        color: white;
+    }
 
-            .btn-slot.morning-slot {
-                background-color: #f0ad4e;
-                color: white;
-            }
+    .btn-slot.afternoon-slot {
+        background-color: #5bc0de;
+        color: white;
+    }
 
-            .btn-slot.afternoon-slot {
-                background-color: #5bc0de;
-                color: white;
-            }
+    .btn-slot:hover {
+        background-color: #0275d8;
+        color: white;
+    }
 
-            .btn-slot:hover {
-                background-color: #0275d8;
-                color: white;
-            }
+    .form-container {
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        margin-bottom: 20px;
+    }
 
-        .form-container {
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            margin-bottom: 20px;
-        }
-
-            .form-container h4 {
-                margin-top: 20px;
-                margin-bottom: 10px;
-                color: #333;
-            }
-
-        .form-horizontal .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-horizontal label {
-            text-align: right;
-        }
-
-        #calendar {
+        .form-container h4 {
             margin-top: 20px;
+            margin-bottom: 10px;
+            color: #333;
         }
-    </style>
+
+    .form-horizontal .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-horizontal label {
+        text-align: right;
+    }
+
+    #calendar {
+        margin-top: 20px;
+    }
+
+    .slot-group {
+        clear: both;
+        margin-top: 10px;
+    }
+
+    .slot-header {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .form-control {
+        max-width: 400px
+    }
+
+</style>
 
 @section scripts {
     <script type="text/javascript">
-        var availableSlots = [];
-        var idKhoa = $('#IDKhoa').val();
-
         $(document).ready(function () {
-            var selectedDate = moment().format("YYYY-MM-DD");
-
-            function setDateTime(start, end) {
-                var formattedStart = moment(start).format("YYYY-MM-DDTHH:mm");
-                var formattedEnd = moment(end).format("YYYY-MM-DDTHH:mm");
-
-                $('#BatDau').val(formattedStart);
-                $('#KetThuc').val(formattedEnd);
-            }
-
-            $('#resetDateTime').click(function () {
-                $('#BatDau').val('');
-                $('#KetThuc').val('');
+            $('#IDKhoa').change(function () {
+                if ($(this).val() === '') {
+                    $('#errorIDKhoa').text('Vui lòng chọn Khoa Khám Bệnh.');
+                } else {
+                    $('#errorIDKhoa').text('');
+                }
             });
 
-            $('.morning-slot, .afternoon-slot').click(function () {
-                var startTime = $(this).data('start');
-                var endTime = $(this).data('end');
+            $('#IDQuanTri').change(function () {
+                if ($(this).val() === '') {
+                    $('#errorIDQuanTri').text('Vui lòng chọn Bác Sĩ.');
+                } else {
+                    $('#errorIDQuanTri').text('');
+                }
+            });
+            function fetchCalendarEvents() {
+                var idKhoa = $('#IDKhoa').val();
+                var idQuanTri = $('#IDQuanTri').val();
+                $.ajax({
+                    url: '@Url.Action("GetAvailableSlots", "Lichkham")',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { idKhoa: idKhoa, idQuanTri: idQuanTri },
+                    success: function (data) {
+                        $('#calendar').fullCalendar('removeEvents');
+                        $('#calendar').fullCalendar('addEventSource', data);
 
-                var start = selectedDate + "T" + startTime;
-                var end = selectedDate + "T" + endTime;
+                        updateSlotsButtons(data);
 
-                setDateTime(start, end);
+                    }
+                });
+            }
+
+            function updateSlotsButtons(data) {
+                $('.slot-group').remove();
+
+                var currentDate = null;
+
+                data.forEach(function (slot) {
+                    var btnClass = slot.start.includes("AM") ? "morning-slot" : "afternoon-slot";
+                    var slotDate = new Date(slot.start).toLocaleDateString('en-US'); 
+
+                    if (slotDate !== currentDate) {
+                        currentDate = slotDate;
+                        var newDiv = $('<div/>', {
+                            class: 'slot-group'
+                        });
+
+                        var header = $('<h4/>', {
+                            class: 'slot-header',
+                            text: new Date(slot.start).toLocaleDateString('vi-VN', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                            })
+                        });
+
+                        newDiv.append(header);
+                        $('.btn-group-wrap').append(newDiv);
+                    }
+
+                    var button = $('<button/>', {
+                        type: 'button',
+                        class: 'btn btn-slot morning-slot ' + btnClass,
+                        'data-start': slot.start,
+                        'data-end': slot.end,
+                        'data-idquantri': slot.idQuanTri, 
+                        text: new Date(slot.start).toLocaleString('vi-VN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        }).replace(",", " - ")
+                    }).click(function () {
+                        var startDateTime = new Date(slot.start).toISOString().split('T')[0] + 'T' + new Date(slot.start).toTimeString().split(' ')[0];
+                        var endDateTime = new Date(slot.end).toISOString().split('T')[0] + 'T' + new Date(slot.end).toTimeString().split(' ')[0];
+                        $('#BatDau').val(startDateTime);
+                        $('#KetThuc').val(endDateTime);
+                        $('#IDQuanTri').val(slot.idQuanTri);
+
+                        $('.btn-slot').not(this).hide();
+                    });
+
+                    $('.slot-group:last').append(button);
+                });
+            }
+
+
+
+             $('#IDKhoa').change(function () {
+                    var idKhoa = $(this).val();
+                    $.ajax({
+                        url: '@Url.Action("GetDoctorsByDepartment", "Lichkham")',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { idKhoa: idKhoa },
+                        success: function (doctors) {
+                            var doctorSelect = $('#IDQuanTri');
+                            doctorSelect.empty();
+                            doctorSelect.append($('<option/>', {
+                                value: '',
+                                text: '-- Chọn Bác Sĩ --',
+                                selected: true,
+                                disabled: true
+                            }));
+                            $.each(doctors, function (index, doctor) {
+                                doctorSelect.append($('<option/>', {
+                                    value: doctor.IDQuanTri,
+                                    text: doctor.HoTen
+                                }));
+                            });
+                            fetchCalendarEvents();
+                        }
+                    });
+             });
+
+            $('#IDQuanTri').change(function () {
+                fetchCalendarEvents();
             });
 
             $('#calendar').fullCalendar({
@@ -111,70 +220,62 @@
                 editable: false,
                 allDaySlot: false,
                 selectable: true,
-                slotMinutes: 45,
-                dayClick: function (date) {
-                    selectedDate = date.format("YYYY-MM-DD");
-
-                    $('.morning-slot, .afternoon-slot').each(function () {
-                        var slotTime = $(this).data('start') + 'a';
-                        if (availableSlots.includes(slotTime)) {
-                            $(this).show();
-                            $(this).prop('disabled', false);
-                        } else {
-                            $(this).hide();
-                            $(this).prop('disabled', true);
-                        }
-                    });
-                },
-                select: function (start, end) {
-                    if (start.isBefore(moment())) {
-                        alert("Ngày giờ bắt đầu phải lớn hơn ngày giờ hiện tại!");
-                        $('#calendar').fullCalendar('unselect');
-                        return;
-                    }
-                    setDateTime(start, end);
-                },
+                displayEventEnd: false,
                 events: function (start, end, timezone, callback) {
                     var idKhoa = $('#IDKhoa').val();
                     var idQuanTri = $('#IDQuanTri').val();
-                    if (idKhoa) {
-                        $.ajax({
-                            url: '/Lichkham/Lichdangluoi',
-                            dataType: 'json',
-                            data: {
-                                idKhoa: idKhoa,
-                                idQuanTri: idQuanTri
-                            },
-                            success: function (data) {
-                                $('#calendar').fullCalendar('removeEvents');
-                                $('#calendar').fullCalendar('addEventSource', data);
+                    $.ajax({
+                        url: '@Url.Action("GetAvailableSlots", "Lichkham")',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            idKhoa: idKhoa,
+                            idQuanTri: idQuanTri
+                        },
+                        success: function (data) {
+                            var filteredEvents = [];
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i].idQuanTri === idQuanTri || !idQuanTri) {
+                                    var startDate = new Date(data[i].start);
+                                    var endDate = new Date(data[i].end);
 
-                                availableSlots = data.map(function (slot) {
-                                    return moment(slot.start).format("HH:mm") + 'a';
-                                });
+                                    var formattedStart = startDate.toLocaleString('en-GB', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                        hour12: true
+                                    }).replace(',', ' -');
 
-                                var events = [];
-                                $(data).each(function () {
-                                    var color = this.trangThai == 0 ? "yellow" : this.TrangThai == 1 ? "red" : "green";
-                                    events.push({
-                                        id: this.id,
-                                        title: this.title,
-                                        start: this.start,
-                                        end: this.end,
-                                        color: color,
-                                        idQuanTri: this.idQuanTri
+                                    var formattedEnd = endDate.toLocaleString('en-GB', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                        hour12: true
+                                    }).replace(',', ' -');
+
+                                    filteredEvents.push({
+                                        title: data[i].title,
+                                        start: formattedStart,
+                                        end: formattedEnd,
+                                        color: '#378006'
                                     });
-                                });
-                                callback(events);
+                                }
+
                             }
-                        });
-                    } else {
-                        $('#calendar').fullCalendar('removeEvents');
-                    }
+                            callback(filteredEvents);
+                        }
+                    });
                 },
-                eventClick: function (event) {
-                    $('#IDQuanTri').val(event.idQuanTri);
-                    setDateTime(event.start, event.end);
+
+                dayClick: function (date, jsEvent, view) {
+                },
+                eventClick: function (event, jsEvent, view) {
                 }
             });
 
@@ -182,58 +283,40 @@
                 $('#calendar').fullCalendar('refetchEvents');
             });
 
-            $('#IDKhoa').change(function () {
-                var idKhoa = $(this).val();
-                if (idKhoa) {
-                    $.ajax({
-                        url: '@Url.Action("GetDoctorsByDepartment", "LichKham")',
-                        type: 'GET',
-                        data: { idKhoa: idKhoa },
-                        success: function (data) {
-                            var doctorSelect = $('#IDQuanTri');
-                            doctorSelect.empty();
-                            doctorSelect.append('<option value="">Chọn bác sĩ</option>');
-                            $.each(data, function (index, item) {
-                                doctorSelect.append('<option value="' + item.IDQuanTri + '">' + item.HoTen + '</option>');
-                            });
-                        }
-                    });
+            $('.btn-slot').click(function () {
+                var start = $(this).data('start');
+                var end = $(this).data('end');
 
-                    $.ajax({
-                        url: '@Url.Action("GetAvailableSlots", "LichKham")',
-                        type: 'GET',
-                        data: { idKhoa: idKhoa },
-                        success: function (data) {
-                            $('#calendar').fullCalendar('removeEvents');
-                            $('#calendar').fullCalendar('addEventSource', data);
+                var date = new Date();
 
-                            availableSlots = data.map(function(slot) {
-                                return moment(slot.start).format("HH:mm") + 'a';
-                            });
-                        }
-                    });
-                }
+                var startDateTime = date.toISOString().split('T')[0] + 'T' + start;
+                var endDateTime = date.toISOString().split('T')[0] + 'T' + end;
+
+                $('#BatDau').val(startDateTime);
+                $('#KetThuc').val(endDateTime);
             });
 
-            $('#IDQuanTri').change(function () {
-                var idQuanTri = $(this).val();
-                if (idQuanTri) {
-                    $.ajax({
-                        url: '@Url.Action("GetAvailableSlots", "LichKham")',
-                        type: 'GET',
-                        data: { idKhoa: $('#IDKhoa').val(), idQuanTri: idQuanTri },
-                        success: function (data) {
-                            $('#calendar').fullCalendar('removeEvents');
-                            $('#calendar').fullCalendar('addEventSource', data);
+            $('#resetForm').click(function () {
+                $('#IDQuanTri').val(''); // Reset IDQuanTri
+                $('#BatDau').val(''); // Reset BatDau
+                $('#KetThuc').val(''); // Reset KetThuc
+                $('#MoTa').val(''); // Reset MoTa
 
-                            availableSlots = data.map(function(slot) {
-                                return moment(slot.start).format("HH:mm") + 'a'; 
-                            });
-                        }
-                    });
-                }
+                // Xóa các thông báo lỗi
+                $('#errorIDQuanTri').text('');
+                $('#errorBatDau').text('');
+                $('#errorKetThuc').text('');
+                $('#errorMoTa').text('');
+
+                // Giữ lại giá trị IDKhoa đã chọn
+                var selectedKhoa = $('#IDKhoa').val();
+                $('#IDKhoa').val(selectedKhoa);
+
+                // Gọi hàm fetchCalendarEvents để load lại dữ liệu lịch mới
+                fetchCalendarEvents();
             });
         });
+
     </script>
 }
 
@@ -243,12 +326,15 @@
     @using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
-        <div class="row">
-            <div class="col-md-6">
+        <div class="col-md-8">
+            <div id="calendar"></div>
+        </div>
+            <div class="row justify-content-center">
+            <div class="col-md-4">
                 <div class="form-container">
-                    <h4>Thông tin người đặt lịch</h4>
+                    <h4>Thông tin đặt lịch khám</h4>
                     <div class="form-group row">
-                        @Html.LabelFor(model => model.IDNguoiDung, "Người đặt lịch khám", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        @Html.LabelFor(model => model.IDNguoiDung, "Bệnh nhân", htmlAttributes: new { @class = "col-md-4 col-form-label" })
                         <div class="col-md-8">
                             <select class="form-control" id="IDNguoiDung" name="IDNguoiDung" readonly>
                                 <option value="@u.IDNguoiDung">@u.HoTen</option>
@@ -257,20 +343,20 @@
                         </div>
                     </div>
 
-                    <h4>Chọn Khoa và Bác Sĩ</h4>
                     <div class="form-group row">
-                        @Html.LabelFor(model => model.IDKhoa, "Khoa", htmlAttributes: new { @class = "col-md-4 col-form-label" })
                         <div class="col-md-8">
-                            @Html.DropDownList("IDKhoa", (IEnumerable<SelectListItem>)ViewBag.IDKhoa, "Chọn khoa", new { @class = "form-control" })
+                            @Html.LabelFor(model => model.IDKhoa, new { @class = "control-label" })
+                            @Html.DropDownListFor(model => model.IDKhoa, new SelectList(ViewBag.IDKhoa, "Value", "Text"), "-- Chọn Khoa Khám Bệnh --", new { @class = "form-control", id = "IDKhoa" })
+                            <span id="errorIDKhoa" class="text-danger"></span>
                             @Html.ValidationMessageFor(model => model.IDKhoa, "", new { @class = "text-danger" })
                         </div>
                     </div>
+
                     <div class="form-group row">
-                        @Html.LabelFor(model => model.IDQuanTri, "Bác sĩ", htmlAttributes: new { @class = "col-md-4 col-form-label" })
                         <div class="col-md-8">
-                            <select id="IDQuanTri" name="IDQuanTri" class="form-control">
-                                <option value="">Chọn bác sĩ</option>
-                            </select>
+                            @Html.LabelFor(model => model.IDQuanTri, new { @class = "control-label" })
+                            @Html.DropDownListFor(model => model.IDQuanTri, Enumerable.Empty<SelectListItem>(), "-- Chọn Bác Sĩ --", new { @class = "form-control", id = "IDQuanTri" })
+                            <span id="errorIDQuanTri" class="text-danger"></span>
                             @Html.ValidationMessageFor(model => model.IDQuanTri, "", new { @class = "text-danger" })
                         </div>
                     </div>
@@ -278,71 +364,45 @@
                     <h4>Chọn thời gian khám</h4>
                     <div class="form-group row">
                         <div class="col-md-12">
-                            <h5>Ca sáng</h5>
                             <div class="btn-group-wrap">
-                                <button type="button" class="btn btn-slot morning-slot" data-start="07:30" data-end="07:55">07:30 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" data-start="08:00" data-end="08:25">08:00 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" data-start="08:30" data-end="08:55">08:30 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" data-start="09:00" data-end="09:25">09:00 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" data-start="09:30" data-end="09:55">09:30 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" data-start="10:00" data-end="10:25">10:00 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" data-start="10:30" data-end="10:55">10:30 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" data-start="11:00" data-end="11:25">11:00 SA</button>
-                                <button type="button" class="btn btn-slot morning-slot" id="resetDateTime" style="background-color: #ef674f">Reset</button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="form-group row">
-                        <div class="col-md-12">
-                            <h5>Ca chiều</h5>
-                            <div class="btn-group-wrap">
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="13:00" data-end="13:25">13:00 CH</button>
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="13:30" data-end="13:55">13:30 CH</button>
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="14:00" data-end="14:25">14:00 CH</button>
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="14:30" data-end="14:55">14:30 CH</button>
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="15:00" data-end="15:25">15:00 CH</button>
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="15:30" data-end="15:55">15:30 CH</button>
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="16:00" data-end="16:25">16:00 CH</button>
-                                <button type="button" class="btn btn-slot afternoon-slot" data-start="16:30" data-end="16:55">16:30 CH</button>
-                                <button type="button" class="btn btn-slot morning-slot" id="resetDateTime" style="background-color: #ef674f">Reset</button>
-                            </div>
-                        </div>
-                    </div>
-
 
                     <h4>Thông tin lịch khám</h4>
                     <div class="form-group row">
-                        @Html.LabelFor(model => model.BatDau, "Ngày giờ bắt đầu", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        @Html.LabelFor(model => model.BatDau, "Bắt đầu", htmlAttributes: new { @class = "col-md-4 col-form-label" })
                         <div class="col-md-8">
-                            @Html.TextBoxFor(model => model.BatDau, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local" })
+                            @Html.TextBoxFor(model => model.BatDau, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local", @readonly = "readonly", id = "BatDau" })
+                            <span id="errorBatDau" class="text-danger"></span>
                             @Html.ValidationMessageFor(model => model.BatDau, "", new { @class = "text-danger" })
                         </div>
                     </div>
+
                     <div class="form-group row">
-                        @Html.LabelFor(model => model.KetThuc, "Ngày giờ kết thúc", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        @Html.LabelFor(model => model.KetThuc, "Kết thúc", htmlAttributes: new { @class = "col-md-4 col-form-label" })
                         <div class="col-md-8">
-                            @Html.TextBoxFor(model => model.KetThuc, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local" })
+                            @Html.TextBoxFor(model => model.KetThuc, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local", @readonly = "readonly", id = "KetThuc" })
+                            <span id="errorKetThuc" class="text-danger"></span>
                             @Html.ValidationMessageFor(model => model.KetThuc, "", new { @class = "text-danger" })
                         </div>
                     </div>
+
                     <div class="form-group row">
                         @Html.LabelFor(model => model.MoTa, "Mô tả", htmlAttributes: new { @class = "col-md-4 col-form-label" })
                         <div class="col-md-8">
                             @Html.TextAreaFor(model => model.MoTa, new { htmlAttributes = new { @class = "form-control" } })
+                            <span id="errorMoTa" class="text-danger"></span>
                             @Html.ValidationMessageFor(model => model.MoTa, "", new { @class = "text-danger" })
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-md-8 offset-md-4">
                             <input type="submit" value="Lưu" class="btn btn-primary" />
-                            <button type="button" id="resetDateTime" class="btn btn-warning">Reset Ngày giờ</button>
+                            <button type="button" id="resetForm" class="btn btn-warning">Đặt lại form</button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div id="calendar"></div>
             </div>
         </div>
     }

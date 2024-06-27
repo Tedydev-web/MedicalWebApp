@@ -17,8 +17,8 @@ namespace WebAppYte.Controllers
         // GET: Lichkham
         public ActionResult Index(int? id, int? page)
         {
-            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri).
-                Where(h => h.IDNguoiDung == id).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
+            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri)
+                .Where(h => h.IDNguoiDung == id).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
             int pageSize = 3;
             int pageNumber = (page ?? 1);
             ViewBag.id = id;
@@ -27,26 +27,28 @@ namespace WebAppYte.Controllers
 
         public ActionResult Dangxuly(int? id, int? page)
         {
-            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri).
-                Where(h => h.IDNguoiDung == id && h.TrangThai == 0).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
+            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri)
+                .Where(h => h.IDNguoiDung == id && h.TrangThai == 0).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
             int pageSize = 3;
             int pageNumber = (page ?? 1);
             ViewBag.id = id;
             return View(lichKhams.ToPagedList(pageNumber, pageSize));
         }
+
         public ActionResult Daxacnhan(int? id, int? page)
         {
-            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri).
-                Where(h => h.IDNguoiDung == id && h.TrangThai == 1).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
+            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri)
+                .Where(h => h.IDNguoiDung == id && h.TrangThai == 1).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
             int pageSize = 3;
             int pageNumber = (page ?? 1);
             ViewBag.id = id;
             return View(lichKhams.ToPagedList(pageNumber, pageSize));
         }
+
         public ActionResult Datuvanxong(int? id, int? page)
         {
-            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri).
-                Where(h => h.IDNguoiDung == id && h.TrangThai == 2).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
+            var lichKhams = db.LichKhams.Include(l => l.NguoiDung).Include(l => l.QuanTri)
+                .Where(h => h.IDNguoiDung == id && h.TrangThai == 2).OrderByDescending(x => x.BatDau).ThenBy(x => x.IDLichKham);
             int pageSize = 3;
             int pageNumber = (page ?? 1);
             ViewBag.id = id;
@@ -75,6 +77,7 @@ namespace WebAppYte.Controllers
             {
                 return Json(new { success = false, message = "Thời gian bắt đầu không được nhỏ hơn thời gian hiện tại." });
             }
+
             bool isTimeSlotTaken = db.LichKhams.Any(lk => lk.IDQuanTri == idQuanTri
                 && DbFunctions.TruncateTime(lk.BatDau) == DbFunctions.TruncateTime(ngayBatDau)
                 && ((DbFunctions.DiffHours(lk.BatDau, ngayBatDau) < 2 && DbFunctions.DiffHours(lk.BatDau, ngayBatDau) >= 0)
@@ -84,13 +87,10 @@ namespace WebAppYte.Controllers
             {
                 return Json(new { success = false, message = "Vui lòng chọn lịch khác, bác sĩ đã có lịch khám trong ngày này. Thời gian đặt lịch phải cách lịch khám của bác sĩ 2 tiếng" });
             }
-            if (ngayBatDau < DateTime.Now)
-            {
-                return Json(new { success = false, message = "Thời gian bắt đầu không được nhỏ hơn thời gian hiện tại." });
-            }
+
             var lichLamViec = db.LichLamViecs.FirstOrDefault(llv => llv.IDQuanTri == idQuanTri
-                                        && DbFunctions.TruncateTime(llv.BatDau) <= DbFunctions.TruncateTime(ngayBatDau)
-                                        && DbFunctions.TruncateTime(llv.KetThuc) >= DbFunctions.TruncateTime(ngayBatDau));
+                && DbFunctions.TruncateTime(llv.BatDau) <= DbFunctions.TruncateTime(ngayBatDau)
+                && DbFunctions.TruncateTime(llv.KetThuc) >= DbFunctions.TruncateTime(ngayBatDau));
 
             if (lichLamViec == null || ngayBatDau < lichLamViec.BatDau || ngayBatDau > lichLamViec.KetThuc)
             {
@@ -141,14 +141,12 @@ namespace WebAppYte.Controllers
             return View(lichKham);
         }
 
-
         public JsonResult GetDoctorsByDepartment(int idKhoa)
         {
-            var doctors = db.QuanTris.Where(b => b.IDKhoa == idKhoa).Select(b => new
-            {
-                b.IDQuanTri,
-                b.HoTen
-            }).ToList();
+            var doctors = db.QuanTris
+                .Where(b => b.IDKhoa == idKhoa && b.VaiTro == 2)
+                .Select(b => new { b.IDQuanTri, b.HoTen })
+                .ToList();
             return Json(doctors, JsonRequestBehavior.AllowGet);
         }
 
@@ -156,71 +154,61 @@ namespace WebAppYte.Controllers
         {
             var availableSlots = new List<object>();
 
-            if (idQuanTri.HasValue)
+            var query = idQuanTri.HasValue ?
+                        db.LichLamViecs.Where(llv => llv.IDQuanTri == idQuanTri.Value) :
+                        db.LichLamViecs.Where(llv => db.QuanTris.Any(qt => qt.IDQuanTri == llv.IDQuanTri && qt.IDKhoa == idKhoa));
+
+            var schedules = query.ToList();
+
+            foreach (var schedule in schedules)
             {
-                var schedules = db.LichLamViecs.Where(llv => llv.IDQuanTri == idQuanTri.Value).ToList();
+                var appointments = db.LichKhams.Where(lk => lk.IDQuanTri == schedule.IDQuanTri && DbFunctions.TruncateTime(lk.BatDau) == DbFunctions.TruncateTime(schedule.BatDau)).ToList();
 
-                foreach (var schedule in schedules)
+                var startTime = schedule.BatDau;
+                while (startTime < schedule.KetThuc)
                 {
-                    var appointments = db.LichKhams.Where(lk => lk.IDQuanTri == idQuanTri.Value && DbFunctions.TruncateTime(lk.BatDau) == DbFunctions.TruncateTime(schedule.BatDau)).ToList();
+                    var endTime = startTime.Value.AddHours(2);
 
-                    var startTime = schedule.BatDau;
-                    while (startTime < schedule.KetThuc)
+                    if (endTime > schedule.KetThuc)
                     {
-                        var endTime = startTime.Value.AddHours(2);
-
-                        if (!appointments.Any(lk => lk.BatDau <= startTime && lk.KetThuc > startTime))
-                        {
-                            availableSlots.Add(new
-                            {
-                                title = "Lịch trống",
-                                start = startTime.Value.ToString("s"),
-                                end = endTime.ToString("s"),
-                                idQuanTri = idQuanTri.Value 
-                            });
-                        }
-
-                        startTime = endTime;
+                        endTime = schedule.KetThuc.Value;
                     }
-                }
-            }
-            else
-            {
-                var doctors = db.QuanTris.Where(b => b.IDKhoa == idKhoa).ToList();
 
-                foreach (var doctor in doctors)
-                {
-                    var schedules = db.LichLamViecs.Where(llv => llv.IDQuanTri == doctor.IDQuanTri).ToList();
-
-                    foreach (var schedule in schedules)
+                    if (!appointments.Any(lk => lk.BatDau <= startTime && lk.KetThuc > startTime))
                     {
-                        var appointments = db.LichKhams.Where(lk => lk.IDQuanTri == doctor.IDQuanTri && DbFunctions.TruncateTime(lk.BatDau) == DbFunctions.TruncateTime(schedule.BatDau)).ToList();
-
-                        var startTime = schedule.BatDau;
-                        while (startTime < schedule.KetThuc)
+                        availableSlots.Add(new
                         {
-                            var endTime = startTime.Value.AddHours(2);
-
-                            if (!appointments.Any(lk => lk.BatDau <= startTime && lk.KetThuc > startTime))
-                            {
-                                availableSlots.Add(new
-                                {
-                                    title = "Lịch trống",
-                                    start = startTime.Value.ToString("s"),
-                                    end = endTime.ToString("s"),
-                                    idQuanTri = doctor.IDQuanTri 
-                                });
-                            }
-
-                            startTime = endTime;
-                        }
+                            title = "Lịch trống",
+                            start = startTime.Value.ToString("dd/MM/yyyy - HH:mm:ss tt"),
+                            end = endTime.ToString("dd/MM/yyyy - HH:mm:ss tt"),
+                            spanText = $"{startTime.Value.ToString("HH:mm")} - {endTime.ToString("HH:mm")} - Lịch Trống",
+                            idQuanTri = schedule.IDQuanTri
+                        });
                     }
+
+
+                    startTime = endTime;
                 }
             }
 
             return Json(availableSlots, JsonRequestBehavior.AllowGet);
         }
 
+        public JsonResult Lichdangluoi()
+        {
+            List<LichKham> l = db.LichKhams.ToList();
+            var filteredLichKhams = l.Where(ll => ll.TrangThai != 0 && ll.TrangThai != 1);
+
+            var events = filteredLichKhams.Select(ll => new
+            {
+                id = ll.IDLichKham,
+                title = ll.ChuDe,
+                start = ll.BatDau?.ToUniversalTime().AddHours(7).ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
+                end = ll.KetThuc?.ToUniversalTime().AddHours(7).ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
+            }).ToList();
+
+            return new JsonResult { Data = events, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
 
 
         // GET: Lichkham/Edit/5
@@ -284,57 +272,7 @@ namespace WebAppYte.Controllers
             return RedirectToAction("Index");
         }
 
-        public JsonResult Lichdangluoi()
-        {
-            List<LichKham> l = db.LichKhams.ToList();
-            var filteredLichKhams = l.Where(ll => ll.TrangThai != 0 && ll.TrangThai != 1);
 
-            var events = filteredLichKhams.Select(ll => new
-            {
-                id = ll.IDLichKham,
-                title = ll.ChuDe,
-                start = ll.BatDau?.ToUniversalTime().AddHours(7).ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
-                end = ll.KetThuc?.ToUniversalTime().AddHours(7).ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
-            }).ToList();
-
-            return new JsonResult { Data = events, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-        }
-
-        public JsonResult Lichhenbacsi(int idQuanTri)
-        {
-            var lichKhamBacSi = db.LichKhams.Where(l => l.IDQuanTri == idQuanTri).ToList();
-            var events = lichKhamBacSi.Select(ll => new
-            {
-                id = ll.IDLichKham,
-                start = ll.BatDau?.ToUniversalTime().AddHours(7).ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
-                color = ll.TrangThai == 0 ? "yellow" : ll.TrangThai == 1 ? "red" : "green",
-                textColor = ll.TrangThai == 0 ? "black" : "white"
-            });
-
-            return Json(events, JsonRequestBehavior.AllowGet);
-        }
-
-        public JsonResult Lichlamviec(int idQuanTri)
-        {
-            var lichLamViecBacSi = db.LichLamViecs.Where(l => l.IDQuanTri == idQuanTri).ToList();
-            var events = lichLamViecBacSi.Select(ll => new
-            {
-                id = ll.IDLichLamViec,
-                start = ll.BatDau?.ToUniversalTime().AddHours(7).ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
-                end = ll.KetThuc?.ToUniversalTime().AddHours(7).ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
-                color = "#ADD8E6",
-                textColor = "black"
-            });
-
-            return Json(events, JsonRequestBehavior.AllowGet);
-        }
-
-
-        public ActionResult lichhen()
-        {
-            return View();
-
-        }
         private static DateTime ConvertFromUnixTimestamp(double timestamp)
         {
             var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
