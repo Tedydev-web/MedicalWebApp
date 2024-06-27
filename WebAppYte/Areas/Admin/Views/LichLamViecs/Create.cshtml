@@ -1,0 +1,344 @@
+﻿@model WebAppYte.Models.LichLamViec
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAd.cshtml";
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            var selectedDate;
+            var events = [];
+
+            $('#repeatType').change(function () {
+                var selectedRepeatType = $(this).val();
+                var maxRepeatCount;
+
+                switch (selectedRepeatType) {
+                    case 'month':
+                        maxRepeatCount = 12;
+                        break;
+                    case 'week':
+                        maxRepeatCount = 4;
+                        break;
+                    case 'day':
+                        maxRepeatCount = 31;
+                        break;
+                    default:
+                        maxRepeatCount = 1;
+                }
+                $('#repeatCount').attr('max', maxRepeatCount);
+            });
+
+            $('input[name="workShift"]').change(function () {
+                var shift = $(this).attr('id');
+                $('#timeSlots').empty();
+
+                var timeSlots = shift === 'morningShift' ? [
+                    { start: '07:30', end: '07:55' },
+                    { start: '08:00', end: '08:25' },
+                    { start: '08:30', end: '08:55' },
+                    { start: '09:00', end: '09:25' },
+                    { start: '09:30', end: '09:55' },
+                    { start: '10:00', end: '10:25' },
+                    { start: '10:30', end: '10:55' },
+                    { start: '11:00', end: '11:25' },
+                    { start: '07:30', end: '11:25', label: 'Toàn bộ ca sáng' }
+                ] : [
+                    { start: '13:00', end: '13:25' },
+                    { start: '13:30', end: '13:55' },
+                    { start: '14:00', end: '14:25' },
+                    { start: '14:30', end: '14:55' },
+                    { start: '15:00', end: '15:25' },
+                    { start: '15:30', end: '15:55' },
+                    { start: '16:00', end: '16:25' },
+                    { start: '16:30', end: '16:55' },
+                    { start: '13:00', end: '16:55', label: 'Toàn bộ ca chiều' }
+                ];
+
+                timeSlots.forEach(function (slot) {
+                    var btn = $('<button>').addClass('btn btn-info timeSlotBtn').text(slot.label || slot.start)
+                        .data('start', slot.start).data('end', slot.end);
+                    $('#timeSlots').append(btn);
+                });
+            });
+
+            $('#timeSlots').on('click', '.timeSlotBtn', function () {
+                var startTime = $(this).data('start');
+                var endTime = $(this).data('end');
+                var batDau = moment(selectedDate).format('YYYY-MM-DD') + 'T' + startTime;
+                var ketThuc = moment(selectedDate).format('YYYY-MM-DD') + 'T' + endTime;
+
+                // Lấy giá trị hiện tại từ modalBatDau và modalKetThuc
+                var currentBatDau = $('#modalBatDau').val();
+                var currentKetThuc = $('#modalKetThuc').val();
+
+                // Kiểm tra nếu trường không rỗng, thêm dấu phẩy trước giá trị mới
+                var newBatDau = currentBatDau ? currentBatDau + ', ' + startTime : startTime;
+                var newKetThuc = currentKetThuc ? currentKetThuc + ', ' + endTime : endTime;
+
+                // Cập nhật giá trị mới cho modalBatDau và modalKetThuc
+                $('#modalBatDau').val(newBatDau);
+                $('#modalKetThuc').val(newKetThuc);
+
+                if (!checkOverlap(events, batDau, ketThuc)) {
+                    events.push({
+                        BatDau: batDau,
+                        KetThuc: ketThuc
+                    });
+
+                    $('#calendar').fullCalendar('renderEvent', {
+                        title: startTime + ' - ' + endTime,
+                        start: batDau,
+                        end: ketThuc
+                    }, true);
+                } else {
+                    alert('Thời gian đã bị chồng chéo với lịch làm việc khác.');
+                }
+            });
+
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay',
+                },
+                editable: true,
+                selectable: true,
+                selectHelper: true,
+                select: function (start, end) {
+                    selectedDate = start;
+
+                    var batDau = moment(start).format('HH:mm');
+                    var ketThuc = moment(end).subtract(1, 'seconds').format('HH:mm');
+
+                    $('#modalBatDau').val(batDau);
+                    $('#modalKetThuc').val(ketThuc);
+
+                    $('#lichLamViecModal').modal('show');
+                    $('#calendar').fullCalendar('unselect');
+                },
+                eventLimit: true,
+                eventRender: function (event, element) {
+                    element.bind('dblclick', function () {
+                        $('#calendar').fullCalendar('removeEvents', event._id);
+                    });
+                },
+                selectAllow: function (selectInfo) {
+                    var currentDate = moment().startOf('day');
+                    var startDate = moment(selectInfo.start).startOf('day');
+                    return startDate >= currentDate;
+                }
+            });
+
+            $('#saveEvents').click(function () {
+                if (events.length === 0) {
+                    alert('Danh sách sự kiện trống.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("Create", "LichLamViecs")',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                        events: events,
+                        IDQuanTri: $('#IDQuanTri').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Lịch làm việc đã được thêm thành công.');
+                            window.location.href = '/Admin/LichLamViecs';
+                        } else {
+                            alert('Có lỗi xảy ra: ' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error: " + xhr.status + " - " + error);
+                    }
+                });
+            });
+
+            function renderEvents(events) {
+                events.forEach(function (event) {
+                    $('#calendar').fullCalendar('renderEvent', {
+                        title: moment(event.BatDau).format('HH:mm') + ' - ' + moment(event.KetThuc).format('HH:mm'),
+                        start: event.BatDau,
+                        end: event.KetThuc
+                    }, true);
+                });
+            }
+
+            $('#createBatch').click(function () {
+                var repeatType = $('#repeatType').val();
+                var repeatCount = parseInt($('#repeatCount').val(), 10);
+                var startDate = moment(selectedDate);
+
+                for (var i = 0; i < repeatCount; i++) {
+                    var batDau, ketThuc;
+
+                    switch (repeatType) {
+                        case 'day':
+                            batDau = startDate.clone().add(i, 'days').format('YYYY-MM-DD') + 'T' + $('#modalBatDau').val();
+                            ketThuc = startDate.clone().add(i, 'days').format('YYYY-MM-DD') + 'T' + $('#modalKetThuc').val();
+                            break;
+                        case 'week':
+                            batDau = startDate.clone().add(i, 'weeks').format('YYYY-MM-DD') + 'T' + $('#modalBatDau').val();
+                            ketThuc = startDate.clone().add(i, 'weeks').format('YYYY-MM-DD') + 'T' + $('#modalKetThuc').val();
+                            break;
+                        case 'month':
+                            batDau = startDate.clone().add(i, 'months').format('YYYY-MM-DD') + 'T' + $('#modalBatDau').val();
+                            ketThuc = startDate.clone().add(i, 'months').format('YYYY-MM-DD') + 'T' + $('#modalKetThuc').val();
+                            break;
+                        default:
+                            return; // Không hỗ trợ loại lặp lại khác
+                    }
+
+                    if (!checkOverlap(events, batDau, ketThuc)) {
+                        events.push({
+                            BatDau: batDau,
+                            KetThuc: ketThuc
+                        });
+
+                        $('#calendar').fullCalendar('renderEvent', {
+                            title: $('#modalBatDau').val() + ' - ' + $('#modalKetThuc').val(),
+                            start: batDau,
+                            end: ketThuc
+                        }, true);
+                    } else {
+                        alert('Thời gian bắt đầu ' + batDau + ' đã bị chồng chéo với lịch làm việc khác.');
+                    }
+                }
+            });
+
+        });
+    </script>
+}
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #007bff;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .timeSlotBtn {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
+    #calendar {
+        margin-top: 30px;
+    }
+</style>
+
+<div class="container">
+    <h2>Tạo Lịch Làm Việc</h2>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.IDQuanTri, "Nhân Viên", htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.DropDownList("IDQuanTri", null, htmlAttributes: new { @class = "form-control", @id = "IDQuanTri" })
+                @Html.ValidationMessageFor(model => model.IDQuanTri, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-10 offset-md-2">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#lichLamViecModal">
+                    Chọn lịch làm việc
+                </button>
+            </div>
+        </div>
+    }
+
+    <div id="calendar"></div>
+
+    <div class="form-group row">
+        <div class="col-md-10 offset-md-2">
+            <button type="button" class="btn btn-success" id="saveEvents">Lưu</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="lichLamViecModal" tabindex="-1" role="dialog" aria-labelledby="lichLamViecModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lichLamViecModalLabel">Chọn Lịch Làm Việc</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="workShift">Ca Làm Việc:</label><br />
+                        <input type="radio" id="morningShift" name="workShift" value="morning" /> Sáng<br />
+                        <input type="radio" id="afternoonShift" name="workShift" value="afternoon" /> Chiều
+                    </div>
+
+                    <div class="form-group">
+                        <label>Chọn giờ:</label>
+                        <div id="timeSlots"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modalBatDau">Bắt Đầu:</label>
+                        <input type="text" id="modalBatDau" class="form-control" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modalKetThuc">Kết Thúc:</label>
+                        <input type="text" id="modalKetThuc" class="form-control" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repeatType">Loại Lặp Lại:</label>
+                        <select id="repeatType" class="form-control">
+                            <option value="none">Không lặp lại</option>
+                            <option value="day">Ngày</option>
+                            <option value="week">Tuần</option>
+                            <option value="month">Tháng</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repeatCount">Số Lần Lặp:</label>
+                        <input type="number" id="repeatCount" class="form-control" min="1" value="1" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="addLichLamViec">Thêm Lịch</button>
+                    <button type="button" class="btn btn-primary" id="createBatch">Tạo Lịch Hàng Loạt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

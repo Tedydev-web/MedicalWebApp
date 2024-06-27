@@ -1,0 +1,77 @@
+﻿@model WebAppYte.ViewModels.HoiDapViewModel
+
+@{
+    ViewBag.Title = "Create With Contact";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0 text-center">Thêm mới câu hỏi</h2>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+
+                    <div class="form-horizontal">
+                        <hr />
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.HoTen, new { @class = "col-md-4 col-form-label text-md-right" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.HoTen, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.HoTen, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.SDT, new { @class = "col-md-4 col-form-label text-md-right" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.SDT, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.SDT, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.HoiDap.GhiChu, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-md-6">
+                                @Html.DropDownListFor(model => model.HoiDap.GhiChu, (SelectList)ViewBag.TenKhoa, "Chọn Khoa", htmlAttributes: new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.HoiDap.GhiChu, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.HoiDap.CauHoi, htmlAttributes: new { @class = "col-md-4 col-form-label text-md-right" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.HoiDap.CauHoi, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.HoiDap.CauHoi, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        @*<div class="form-group row">
+            @Html.LabelFor(model => model.HoiDap.GhiChu, htmlAttributes: new { @class = "col-md-4 col-form-label text-md-right" })
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.HoiDap.GhiChu, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.HoiDap.GhiChu, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+                        <div class="form-group row">
+                            <div class="col-md-6 text-right">
+                                <input type="submit" value="Gửi câu hỏi" class="btn btn-success" />
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 offset-md-4 mt-3">
+            <img src="~/images/images/covid.jpg" class="img-fluid" />
+        </div>
+    </div>
+</div>
+

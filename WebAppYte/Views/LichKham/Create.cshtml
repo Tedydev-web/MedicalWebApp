@@ -1,0 +1,349 @@
+﻿@model WebAppYte.Models.LichKham
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var u = Session["user"] as WebAppYte.Models.NguoiDung;
+}
+
+    <style>
+        .btn-slot {
+            width: calc(33.333% - 10px);
+            margin: 5px; 
+            float: left;
+        }
+
+        .btn-group-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .form-group.row > div {
+            width: 100%; 
+        }
+
+        .btn-group-vertical.btn-block {
+            margin-right: -5px;
+        }
+
+            .btn-slot.morning-slot {
+                background-color: #f0ad4e;
+                color: white;
+            }
+
+            .btn-slot.afternoon-slot {
+                background-color: #5bc0de;
+                color: white;
+            }
+
+            .btn-slot:hover {
+                background-color: #0275d8;
+                color: white;
+            }
+
+        .form-container {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+
+            .form-container h4 {
+                margin-top: 20px;
+                margin-bottom: 10px;
+                color: #333;
+            }
+
+        .form-horizontal .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-horizontal label {
+            text-align: right;
+        }
+
+        #calendar {
+            margin-top: 20px;
+        }
+    </style>
+
+@section scripts {
+    <script type="text/javascript">
+        var availableSlots = [];
+        var idKhoa = $('#IDKhoa').val();
+
+        $(document).ready(function () {
+            var selectedDate = moment().format("YYYY-MM-DD");
+
+            function setDateTime(start, end) {
+                var formattedStart = moment(start).format("YYYY-MM-DDTHH:mm");
+                var formattedEnd = moment(end).format("YYYY-MM-DDTHH:mm");
+
+                $('#BatDau').val(formattedStart);
+                $('#KetThuc').val(formattedEnd);
+            }
+
+            $('#resetDateTime').click(function () {
+                $('#BatDau').val('');
+                $('#KetThuc').val('');
+            });
+
+            $('.morning-slot, .afternoon-slot').click(function () {
+                var startTime = $(this).data('start');
+                var endTime = $(this).data('end');
+
+                var start = selectedDate + "T" + startTime;
+                var end = selectedDate + "T" + endTime;
+
+                setDateTime(start, end);
+            });
+
+            $('#calendar').fullCalendar({
+                themeSystem: 'bootstrap4',
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                defaultView: 'month',
+                editable: false,
+                allDaySlot: false,
+                selectable: true,
+                slotMinutes: 45,
+                dayClick: function (date) {
+                    selectedDate = date.format("YYYY-MM-DD");
+
+                    $('.morning-slot, .afternoon-slot').each(function () {
+                        var slotTime = $(this).data('start') + 'a';
+                        if (availableSlots.includes(slotTime)) {
+                            $(this).show();
+                            $(this).prop('disabled', false);
+                        } else {
+                            $(this).hide();
+                            $(this).prop('disabled', true);
+                        }
+                    });
+                },
+                select: function (start, end) {
+                    if (start.isBefore(moment())) {
+                        alert("Ngày giờ bắt đầu phải lớn hơn ngày giờ hiện tại!");
+                        $('#calendar').fullCalendar('unselect');
+                        return;
+                    }
+                    setDateTime(start, end);
+                },
+                events: function (start, end, timezone, callback) {
+                    var idKhoa = $('#IDKhoa').val();
+                    var idQuanTri = $('#IDQuanTri').val();
+                    if (idKhoa) {
+                        $.ajax({
+                            url: '/Lichkham/Lichdangluoi',
+                            dataType: 'json',
+                            data: {
+                                idKhoa: idKhoa,
+                                idQuanTri: idQuanTri
+                            },
+                            success: function (data) {
+                                $('#calendar').fullCalendar('removeEvents');
+                                $('#calendar').fullCalendar('addEventSource', data);
+
+                                availableSlots = data.map(function (slot) {
+                                    return moment(slot.start).format("HH:mm") + 'a';
+                                });
+
+                                var events = [];
+                                $(data).each(function () {
+                                    var color = this.trangThai == 0 ? "yellow" : this.TrangThai == 1 ? "red" : "green";
+                                    events.push({
+                                        id: this.id,
+                                        title: this.title,
+                                        start: this.start,
+                                        end: this.end,
+                                        color: color,
+                                        idQuanTri: this.idQuanTri
+                                    });
+                                });
+                                callback(events);
+                            }
+                        });
+                    } else {
+                        $('#calendar').fullCalendar('removeEvents');
+                    }
+                },
+                eventClick: function (event) {
+                    $('#IDQuanTri').val(event.idQuanTri);
+                    setDateTime(event.start, event.end);
+                }
+            });
+
+            $('#IDKhoa, #IDQuanTri').change(function () {
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+
+            $('#IDKhoa').change(function () {
+                var idKhoa = $(this).val();
+                if (idKhoa) {
+                    $.ajax({
+                        url: '@Url.Action("GetDoctorsByDepartment", "LichKham")',
+                        type: 'GET',
+                        data: { idKhoa: idKhoa },
+                        success: function (data) {
+                            var doctorSelect = $('#IDQuanTri');
+                            doctorSelect.empty();
+                            doctorSelect.append('<option value="">Chọn bác sĩ</option>');
+                            $.each(data, function (index, item) {
+                                doctorSelect.append('<option value="' + item.IDQuanTri + '">' + item.HoTen + '</option>');
+                            });
+                        }
+                    });
+
+                    $.ajax({
+                        url: '@Url.Action("GetAvailableSlots", "LichKham")',
+                        type: 'GET',
+                        data: { idKhoa: idKhoa },
+                        success: function (data) {
+                            $('#calendar').fullCalendar('removeEvents');
+                            $('#calendar').fullCalendar('addEventSource', data);
+
+                            availableSlots = data.map(function(slot) {
+                                return moment(slot.start).format("HH:mm") + 'a';
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#IDQuanTri').change(function () {
+                var idQuanTri = $(this).val();
+                if (idQuanTri) {
+                    $.ajax({
+                        url: '@Url.Action("GetAvailableSlots", "LichKham")',
+                        type: 'GET',
+                        data: { idKhoa: $('#IDKhoa').val(), idQuanTri: idQuanTri },
+                        success: function (data) {
+                            $('#calendar').fullCalendar('removeEvents');
+                            $('#calendar').fullCalendar('addEventSource', data);
+
+                            availableSlots = data.map(function(slot) {
+                                return moment(slot.start).format("HH:mm") + 'a'; 
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+<h2 class="text-center my-4">ĐẶT LỊCH KHÁM</h2>
+<hr>
+<div class="container">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-container">
+                    <h4>Thông tin người đặt lịch</h4>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.IDNguoiDung, "Người đặt lịch khám", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        <div class="col-md-8">
+                            <select class="form-control" id="IDNguoiDung" name="IDNguoiDung" readonly>
+                                <option value="@u.IDNguoiDung">@u.HoTen</option>
+                            </select>
+                            @Html.ValidationMessageFor(model => model.IDNguoiDung, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <h4>Chọn Khoa và Bác Sĩ</h4>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.IDKhoa, "Khoa", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("IDKhoa", (IEnumerable<SelectListItem>)ViewBag.IDKhoa, "Chọn khoa", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.IDKhoa, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.IDQuanTri, "Bác sĩ", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        <div class="col-md-8">
+                            <select id="IDQuanTri" name="IDQuanTri" class="form-control">
+                                <option value="">Chọn bác sĩ</option>
+                            </select>
+                            @Html.ValidationMessageFor(model => model.IDQuanTri, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <h4>Chọn thời gian khám</h4>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <h5>Ca sáng</h5>
+                            <div class="btn-group-wrap">
+                                <button type="button" class="btn btn-slot morning-slot" data-start="07:30" data-end="07:55">07:30 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" data-start="08:00" data-end="08:25">08:00 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" data-start="08:30" data-end="08:55">08:30 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" data-start="09:00" data-end="09:25">09:00 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" data-start="09:30" data-end="09:55">09:30 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" data-start="10:00" data-end="10:25">10:00 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" data-start="10:30" data-end="10:55">10:30 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" data-start="11:00" data-end="11:25">11:00 SA</button>
+                                <button type="button" class="btn btn-slot morning-slot" id="resetDateTime" style="background-color: #ef674f">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <h5>Ca chiều</h5>
+                            <div class="btn-group-wrap">
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="13:00" data-end="13:25">13:00 CH</button>
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="13:30" data-end="13:55">13:30 CH</button>
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="14:00" data-end="14:25">14:00 CH</button>
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="14:30" data-end="14:55">14:30 CH</button>
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="15:00" data-end="15:25">15:00 CH</button>
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="15:30" data-end="15:55">15:30 CH</button>
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="16:00" data-end="16:25">16:00 CH</button>
+                                <button type="button" class="btn btn-slot afternoon-slot" data-start="16:30" data-end="16:55">16:30 CH</button>
+                                <button type="button" class="btn btn-slot morning-slot" id="resetDateTime" style="background-color: #ef674f">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <h4>Thông tin lịch khám</h4>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.BatDau, "Ngày giờ bắt đầu", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.BatDau, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local" })
+                            @Html.ValidationMessageFor(model => model.BatDau, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.KetThuc, "Ngày giờ kết thúc", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.KetThuc, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local" })
+                            @Html.ValidationMessageFor(model => model.KetThuc, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.MoTa, "Mô tả", htmlAttributes: new { @class = "col-md-4 col-form-label" })
+                        <div class="col-md-8">
+                            @Html.TextAreaFor(model => model.MoTa, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.MoTa, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-8 offset-md-4">
+                            <input type="submit" value="Lưu" class="btn btn-primary" />
+                            <button type="button" id="resetDateTime" class="btn btn-warning">Reset Ngày giờ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    }
+</div>

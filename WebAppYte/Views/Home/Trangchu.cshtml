@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Trangchu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+@using WebAppYte.Models
+@{
+    var u = Session["user"] as WebAppYte.Models.NguoiDung;
+    var userBS = Session["userBS"] as WebAppYte.Models.QuanTri;
+}
+<br />
+@{
+    if (u != null)
+    {
+        <div>
+            <h3>Chúc mừng bạn @u.HoTen đã đăng nhập thành công.</h3>
+            <br />
+            Cập nhật thông tin cá nhân ngay!.
+            <a class="btn-success" href="@Url.Action("Details", "Nguoidung", new { id = u.IDNguoiDung })"> Click </a>
+        </div>
+    }
+    else
+    {
+        <center> <img src="~/Common/images/bs.jpg" /></center>
+        <div>
+            @if (userBS != null)
+            {
+                <center><h3> Bác sĩ <span style="color: #FF0000">@userBS.HoTen</span> đã đăng nhập thành công.</h3></center>
+            }
+
+            <br />
+            <center>
+                @if (userBS != null)
+                {
+                    <a href="@Url.Action("Kiemtralichhen", "Bacsi")" class="btn btn-primary">Xem lịch khám ngay!</a>
+                }
+            </center>
+        </div>
+    }
+}

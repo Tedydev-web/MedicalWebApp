@@ -1,0 +1,11 @@
+﻿<h3>Tin trong ngày</h3>
+    @foreach (var item in Model)
+    {
+            <img src=@Url.Content("~" + item.Hinhanh) alt="" width="350" height="200" class="" />
+            @*<i>  @item.Mota  </i>*@
+            <a  href="@Url.Action("Xemchitiet", new { @IdTintuc = item.IDTintuc })"> <h4> @item.Tieude</h4> </a>
+            <br/>
+    }
+
+
+

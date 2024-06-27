@@ -1,0 +1,340 @@
+﻿@model WebAppYte.Models.HoSoSucKhoe
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAd.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>HoSoSucKhoe</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.age)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.age)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.sex)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.sex)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.cp)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.cp)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.trestbps)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.trestbps)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.chol)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.chol)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fbs)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.fbs)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.restecg)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.restecg)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.thalach)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.thalach)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.exang)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.exang)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.oldpeak)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.oldpeak)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.slope)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.slope)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ca)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ca)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.thal)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.thal)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Glucose)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Glucose)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Total_Bilirubin)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Total_Bilirubin)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Direct_Bilirubin)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Direct_Bilirubin)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Alkaline_Phosphotase)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Alkaline_Phosphotase)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Alamine_Aminotransferase)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Alamine_Aminotransferase)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Aspartate_Aminotransferase)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Aspartate_Aminotransferase)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Total_Protiens)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Total_Protiens)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Albumin)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Albumin)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Albumin_and_Globulin_Ratio)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Albumin_and_Globulin_Ratio)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.BMI)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BMI)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Bt)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Bt)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.hearingability)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.hearingability)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Eyes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Eyes)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.skinpig)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.skinpig)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ure)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ure)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.creatinine)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.creatinine)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Amylase)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amylase)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Lipase)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Lipase)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Natri)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Natri)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Kali)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Kali)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.triglycerides)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.triglycerides)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CRP)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CRP)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ESR)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ESR)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.sp)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.sp)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.hp)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.hp)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.bodypain)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.bodypain)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Skin)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Skin)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Insulin)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Insulin)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreateOn)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CreateOn)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IDNguoiDung)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NguoiDung.HoTen)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IDQuanTri)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.QuanTri.TaiKhoan)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.KetQua)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.KetQua)
+        </dd>
+    </dl>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-actions no-color">
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </div>
+}
+</div>

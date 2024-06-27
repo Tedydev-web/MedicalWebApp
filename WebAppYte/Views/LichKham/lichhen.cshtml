@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "lichhen";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var u = Session["user"] as WebAppYte.Models.NguoiDung;
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#calendar').fullCalendar({
+                theme: true,
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                defaultView: 'month',
+                editable: true,
+                allDaySlot: false,
+                selectable: true,
+                slotMinutes: 15,
+                events: "/Lichkham/Lichdangluoi/"
+            });
+        });
+    </script>
+}
+
+<br />
+<div class="row">
+
+
+
+    <div class="col-md-8">
+        <h2>Lịch khám của bạn</h2>
+        <button>
+            @Html.ActionLink("Đặt mới", "Create")
+        </button>
+
+    <a href="@Url.Action("Index", "LichKham", new { id = u.IDNguoiDung  })">Xem dạng danh sách</a>
+
+       
+        <div id="calendar" style="margin-top:50px"></div>
+    </div>
+    <div class="col-md-4">
+        <img src="~/Common/images/zoom.png" class="img-responsive"  style="margin-top:300px"/>
+    </div>
+
+
+
+</div>
+<br />

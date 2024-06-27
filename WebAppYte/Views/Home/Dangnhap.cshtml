@@ -1,0 +1,85 @@
+﻿@model WebAppYte.Models.DangNhap
+
+@{
+    ViewBag.Title = "Dangnhap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var nd= Session["nguoidung"] as WebAppYte.Models.NguoiDung;
+}
+<style type="text/css">
+    input#MatKhau {
+        width: 280px;
+        height: 34px
+    }
+    body {
+        background-color: #F6F6F6
+    }
+    .h5fail{
+        color:red; 
+    }
+</style>
+
+<br />
+
+
+<div class="col-md-12">
+
+    @using (Html.BeginForm("Dangnhap", "Home", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+    <center>
+        <div>
+            <div class="form-horizontal">
+
+                @{
+                    if (nd == null)
+                    {
+                        <h2>  Đăng nhập tài khoản</h2>
+                    }
+                    else
+                    {
+                        <h3> Chúc mừng @nd.TaiKhoan đăng ký thành công. Đăng nhập ngay.</h3>
+                    }
+                }
+
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <h4> @Html.LabelFor(model => model.TaiKhoan, htmlAttributes: new { @class = " " })</h4>
+                    <div class="">
+                        @Html.EditorFor(model => model.TaiKhoan, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.TaiKhoan, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <h4>@Html.LabelFor(model => model.MatKhau, htmlAttributes: new { @class = "" })</h4>
+                    <div class="">
+                        @Html.PasswordFor(model => model.MatKhau, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.MatKhau, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <h5 class="h5fail">@ViewBag.Fail</h5>
+
+                <div class="form-group">
+                    <div>
+                        <input type="submit" value="Đăng nhập" class="btn btn-success" />
+                    </div>
+                </div>
+                <div>
+                    Bạn chưa có tài khoản?  @Html.ActionLink("ĐĂNG KÝ NGAY", "Dangky")
+                    <br />
+                    Bạn quên mật khẩu ?  @Html.ActionLink("KHÔI PHỤC LẠI", "Dangnhap")
+                </div>
+            </div>
+
+        </div>
+    </center>
+        }
+
+
+    </div>
+
+ 
+
+
+

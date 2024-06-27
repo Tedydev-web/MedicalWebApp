@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Tư vấn";
+    Layout = "~/Views/Shared/_LayoutTuvan.cshtml";
+
+}
+@using WebAppYte.Models
+@{
+    var u = Session["user"] as WebAppYte.Models.NguoiDung;
+    var userTV = Session["userTV"] as WebAppYte.Models.QuanTri;
+}
+<br />
+@{
+    if (u != null)
+    {
+        <div>
+            <h3>Chúc mừng bạn @u.HoTen đã đăng nhập thành công.</h3>
+            <br />
+            Cập nhật thông tin cá nhân ngay!.
+            <a class="btn-success" href="@Url.Action("Details", "Nguoidung", new { id = u.IDNguoiDung })"> Click </a>
+        </div>
+    }
+    else
+    {
+        <center> <img src="~/Common/images/bs.jpg" /></center>
+        <div>
+            @if (userTV != null)
+            {
+                <center><h3> Tư vấn viên <span style="color: #FF0000">@userTV.HoTen</span> đã đăng nhập thành công.</h3></center>
+            }
+
+            <br />
+            <center>
+                @if (userTV != null)
+                {
+                    <a href="@Url.Action("Quanlyhoidap", "Tuvan")" class="btn btn-primary">Xem câu hỏi ngay!</a>
+                }
+            </center>
+        </div>
+    }
+}

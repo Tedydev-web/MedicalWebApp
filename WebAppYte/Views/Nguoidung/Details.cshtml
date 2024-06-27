@@ -1,0 +1,83 @@
+﻿@model WebAppYte.Models.NguoiDung
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["Message"] != null)
+{
+    <script>alert('@TempData["Message"]');</script>
+}
+
+<link href="~/Common/css/hoso.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<br />
+<h2>Hồ sơ cá nhân</h2>
+<br />
+<div class="row">
+    <div class="col-md-6">
+        <img class="imgavt" src="~/images/images/avatar.jpg" width="170" height="170" />
+        &nbsp;
+        <div class="divInfo">
+            Họ tên : <b> @Html.DisplayFor(model => model.HoTen)</b>
+            <br />
+            Tài khoản: @Html.DisplayFor(model => model.TaiKhoan)
+            <br />
+            Mật khẩu : @Html.DisplayFor(model => model.MatKhau)
+            <br />
+            Giới tính :  @Html.DisplayFor(model => model.GioiTinh.GioiTinh1)
+            <br />
+            Số CMND : @Html.DisplayFor(model => model.SoCMND)
+            <br />
+            Nhóm máu : @Html.DisplayFor(model => model.NhomMau)
+            <br />
+            <button class="btn-warning">
+                @Html.ActionLink("Cập nhật", "Edit", new { id = Model.IDNguoiDung })
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="divInfo">
+
+            <span class="material-icons">wifi_calling</span> &nbsp; Số điện thoại :  @Html.DisplayFor(model => model.DienThoai)
+            <br />
+            <span class="material-icons">
+                email
+            </span> &nbsp; Email :  @Html.DisplayFor(model => model.Email)
+            <br />
+            <span class="material-icons">
+                home
+            </span> &nbsp;
+            Tỉnh : @Html.DisplayFor(model => model.TinhThanh.TenTinh)
+            <br />
+            <span class="material-icons">
+                business
+            </span> &nbsp; Địa chỉ cụ thể : @Html.DisplayFor(model => model.DiaChiCuThe)
+            <br />
+            <span class="material-icons">
+                contacts
+            </span> &nbsp;
+            Thông tin khác : @Html.DisplayFor(model => model.ThongTinKhac)
+            <br />
+            <br />
+
+            <br />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-center">
+        <button class="btn-warning">
+            <a href="@Url.Action("XemHoSoSucKhoe", "Nguoidung", new { idNguoiDung = Model.IDNguoiDung })" class="btn btn-warning">Xem hồ sơ sức khoẻ</a>
+        </button>
+    </div>
+</div>
+<br />
+<center>
+    <br />
+    <h3> <a href="@Url.Action("Index", "LichKham")">ĐẶT LỊCH TƯ VẤN VIDEO</a></h3>
+
+    <h3><a href="@Url.Action("Index", "Hoidap", new { id = @ViewBag.id })">GỬI CÂU HỎI CHO BÁC SĨ</a></h3>
+</center>

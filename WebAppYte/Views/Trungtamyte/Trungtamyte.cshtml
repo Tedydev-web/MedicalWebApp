@@ -1,0 +1,49 @@
+﻿@model IEnumerable<WebAppYte.Models.TrungTamGanNhat>
+@{
+    ViewBag.Title = "Trungtamyte";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    /*    td {
+        text-align: center
+    }*/
+
+    th {
+        text-align: center
+    }
+    .tenBV{
+        color:orangered;
+        font-size:x-large
+    }
+</style>
+
+<br />
+<h2>
+    <i>Danh sách trung tâm và bệnh viện hỗ trợ dịch COVID gần nhất</i>
+
+    @foreach (var i in Model)
+    {
+        @Html.DisplayFor(modelItem => i.TinhThanh.TenTinh)
+        break;
+    }
+</h2>
+<hr />
+<table class="table">
+    <tr>
+        <th class="tenBV">
+            Tên trung tâm | Bệnh viện
+        </th>
+        <th></th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <h3> @Html.DisplayFor(modelItem => item.TenTrungTam)</h3>
+            </td>
+            <td>
+                <h3><button class="btn-facebook"> @Html.ActionLink("Xem chi tiết", "Details", new { id = item.IDTrungTam })</button></h3>
+            </td>
+        </tr>
+    }
+</table>

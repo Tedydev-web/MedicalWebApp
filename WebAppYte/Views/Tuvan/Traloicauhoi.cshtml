@@ -1,0 +1,97 @@
+﻿@model WebAppYte.Models.HoiDap
+
+
+@{
+    ViewBag.Title = "Traloicauhoi";
+    Layout = "~/Views/Shared/_LayoutTuvan.cshtml";
+    var i = Model.IDNguoiDung;
+}
+
+<h2>Trả lời câu hỏi</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.IDHoidap)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CauHoi, htmlAttributes: new { @class = "control-label col-md-2" })
+            @*<h4 class="text-primary">: " @Model.CauHoi "</h4>*@
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.CauHoi, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                @Html.ValidationMessageFor(model => model.CauHoi, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.TraLoi, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <textarea cols="70" htmlAttributes="{ class = form-control }" id="TraLoi" name="TraLoi" rows="10"></textarea>
+                @Html.ValidationMessageFor(model => model.CauHoi, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IDNguoiDung, "Người  hỏi", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @*<select class="form-control" id="IDNguoiDung" name="IDNguoiDung">
+                        <option value="@Model.IDNguoiDung">ViewBag.IDNguoiDung</option>
+                    </select>*@
+                @Html.DropDownList("IDNguoiDung", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.IDNguoiDung, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @*<div class="form-group">
+                @Html.LabelFor(model => model.IDQuanTri, "IDQuanTri", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("IDQuanTri", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.IDQuanTri, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.NgayGui, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.NgayGui, null, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                @Html.ValidationMessageFor(model => model.NgayGui, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.GhiChu, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.GhiChu, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.GhiChu, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @*<div class="form-group">
+                @Html.LabelFor(model => model.TrangThai, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.TrangThai, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.TrangThai, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Trả lời" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+<script type="text/javascript">window.onload = function() {
+        if (document.getElementById('TraLoi').value != '') {
+            document.forms[0].submit();
+        }
+    }</script>

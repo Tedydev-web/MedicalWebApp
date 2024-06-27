@@ -1,0 +1,46 @@
+﻿@model IEnumerable<WebAppYte.Models.TrungTamGanNhat>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAd.cshtml";
+}
+
+<h2>Quản lý trung tâm y tế</h2>
+
+<p>
+    @Html.ActionLink("Thêm mới", "Create")
+</p>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.TinhThanh.TenTinh)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TenTrungTam)
+        </th>
+        @*<th>
+            @Html.DisplayNameFor(model => model.Mota)
+        </th>*@
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.TinhThanh.TenTinh)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TenTrungTam)
+        </td>
+        @*<td>
+            @Html.DisplayFor(modelItem => item.Mota)
+        </td>*@
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.IDTrungTam }) |
+            @Html.ActionLink("Details", "Details", new { id=item.IDTrungTam }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.IDTrungTam })
+        </td>
+    </tr>
+}
+
+</table>

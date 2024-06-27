@@ -1,0 +1,42 @@
+﻿@model PagedList.IPagedList<WebAppYte.Models.HoiDap>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var u = Session["user"] as WebAppYte.Models.NguoiDung;
+    var userBS = Session["userBS"] as WebAppYte.Models.QuanTri;
+}
+
+<h2> Câu hỏi của bạn chờ xử lý </h2>
+@if (u != null)
+{
+    <button class="btn-default">@Html.ActionLink("Gửi câu hỏi mới", "Create", new { id = @ViewBag.id })</button>
+}
+else if (u == null)
+{
+    <button class="btn-default">@Html.ActionLink("Gửi câu hỏi mới", "CreateGuest", new { id = @ViewBag.id })</button>
+}
+<hr />
+<div class="col-md-8">
+    @foreach (var item in Model)
+    {
+        if (item.TrangThai == 0)
+        {
+            <h5 style="color:red">Trạng thái :  Đang chờ giải đáp</h5>
+        }
+        <i class="fas fa-clock"></i><i>&nbsp;@item.NgayGui.Value.ToString("dd/MM/yyyy HH:mm:ss")</i>
+        <h4 class="text-info">Câu hỏi:</h4>
+        <h5 class="text-primary">@Html.DisplayFor(modelItem => item.CauHoi)</h5>
+        <h5 class="text-success"> @Html.DisplayFor(modelItem => item.TraLoi)</h5>
+        <hr />
+    }
+    Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("Index",
+                new { page }))
+</div>
+
+<div class="col-md-4">
+    <h4> Bản đồ phân bố dịch</h4>
+    <img src="~/images/images/bando.png" class="img-responsive" />
+</div>

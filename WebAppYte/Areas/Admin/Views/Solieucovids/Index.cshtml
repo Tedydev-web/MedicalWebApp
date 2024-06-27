@@ -1,0 +1,64 @@
+﻿@model IEnumerable<WebAppYte.Models.Solieucovid>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAd.cshtml";
+}
+
+<h2>Quản lý số liệu </h2>
+
+<p>
+    @Html.ActionLink("Thêm mới", "Create")
+</p>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Quocgia)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Socanhiem)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Dangdieutri)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Khoi)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Tuvong)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Ghichu)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Quocgia)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Socanhiem)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Dangdieutri)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Khoi)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Tuvong)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Ghichu)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.IDThongkecovid }) |
+            @Html.ActionLink("Details", "Details", new { id=item.IDThongkecovid }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.IDThongkecovid })
+        </td>
+    </tr>
+}
+
+</table>

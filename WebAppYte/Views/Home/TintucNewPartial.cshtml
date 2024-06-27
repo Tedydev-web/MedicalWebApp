@@ -1,0 +1,12 @@
+﻿<h3> Tin tức  nổi bật</h3>
+
+@foreach (var item in Model)
+{
+    <img src=@Url.Content("~" + item.Hinhanh) alt="" width="720" height="480" class="img-responsive" />
+    <h2> @item.Tieude</h2>
+    <i>  @item.Mota  </i>
+    <br />
+    <a href="@Url.Action("Xemchitiet", new {@IdTintuc=item.IDTintuc })"> Xem chi tiết </a>
+}
+
+

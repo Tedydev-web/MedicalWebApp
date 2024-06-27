@@ -1,0 +1,105 @@
+﻿@model IEnumerable<WebAppYte.Models.LichLamViec>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAd.cshtml";
+}
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('.toggle-icon').click(function (event) {
+                event.stopPropagation();
+                var content = $(this).closest('.card').find('.group-content');
+                content.toggle();
+                if ($(this).text() === '➕') {
+                    $(this).text('➖');
+                } else {
+                    $(this).text('➕');
+                }
+            });
+
+            $('.card-header').click(function () {
+                var content = $(this).closest('.card').find('.group-content');
+                content.toggle();
+                var icon = $(this).find('.toggle-icon');
+                if (icon.text() === '➕') {
+                    icon.text('➖');
+                } else {
+                    icon.text('➕');
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .centered {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .column-border {
+        border-right: 1px solid #dee2e6;
+    }
+
+    .table tr:last-child td {
+        border-bottom: 2px solid #dee2e6;
+    }
+</style>
+
+
+<h2 class="text-center" style="margin: 0 0 70px 0; color: #FF0000; font-weight: 600">QUẢN LÝ LỊCH LÀM VIỆC</h2>
+
+<a href="@Url.Action("Create")" class="btn btn-success" style="margin: 15px 0">Create New</a>
+
+
+@{
+    var groupedItems = Model.GroupBy(x => x.QuanTri.TaiKhoan).ToList();
+}
+
+@foreach (var group in groupedItems)
+{
+    <div class="card">
+        <div class="card-header" style="cursor: pointer;">
+            <h3>
+                <span class="toggle-icon" style="display: inline-block; width: 0 20px 20px 0;">➕</span>
+                @group.Key
+            </h3>
+        </div>
+        <div class="card-body" style=" padding: 0;">
+            <table class="table table-hover table-striped group-content" style="display: none;">
+                <thead>
+                    <tr>
+                        <th class="centered column-border">
+                            @Html.DisplayNameFor(model => model.BatDau)
+                        </th>
+                        <th class="centered column-border">
+                            @Html.DisplayNameFor(model => model.KetThuc)
+                        </th>
+                        <th class="centered column-border">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in group)
+                    {
+                        <tr>
+                            <td class="centered column-border">
+                                @(item.BatDau.HasValue ? item.BatDau.Value.ToString("M/dd/yyyy - hh:mm:ss tt") : "")
+                            </td>
+                            <td class="centered column-border">
+                                @(item.KetThuc.HasValue ? item.KetThuc.Value.ToString("M/dd/yyyy - hh:mm:ss tt") : "")
+                            </td>
+                            <td class="centered column-border">
+                                @Html.ActionLink("Edit", "Edit", new { id = item.IDLichLamViec }, new { @class = "btn btn-primary btn-sm" }) |
+                                @Html.ActionLink("Details", "Details", new { id = item.IDLichLamViec }, new { @class = "btn btn-info btn-sm" }) |
+                                @Html.ActionLink("Delete", "Delete", new { id = item.IDLichLamViec }, new { @class = "btn btn-danger btn-sm" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+}

@@ -1,0 +1,110 @@
+﻿@model PagedList.IPagedList<WebAppYte.Models.LichKham>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Kiemtralichhen";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userBS = Session["userBS"] as WebAppYte.Models.QuanTri;
+}
+
+<hr />
+<h2>DANH SÁCH LỊCH HẸN</h2>
+<hr />
+<h4>
+    <a href="@Url.Action("Lichdangcho", "Bacsi", new { id = userBS.IDQuanTri  })">LỊCH CHƯA XÁC NHẬN</a>&nbsp;||
+    <a href="@Url.Action("Lichdaxacnhan", "Bacsi", new { id = userBS.IDQuanTri  })">LỊCH ĐÃ XÁC NHẬN</a>&nbsp;||
+    <a href="@Url.Action("Kiemtralichhen", "Bacsi", new { id = userBS.IDQuanTri  })">TẤT CẢ LỊCH HẸN</a>
+</h4>
+<br />
+<table class="table table-bordered">
+    <tr>
+        <th>
+            Người đặt lịch
+        </th>
+        @*<th>
+                Bác sĩ tư vấn
+            </th>*@
+        <th>
+            Nội dung cần tư vấn
+        </th>
+        @*<th>
+                Mô tả
+            </th>*@
+        <th>
+            Hẹn vào lúc
+        </th>
+        @*<th>
+                Kết thúc lúc
+            </th>*@
+        <th>
+            Trạng thái
+        </th>
+        <th>
+            Link ZOOM
+        </th>
+        <th>
+            Ghi chú tư vấn
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NguoiDung.HoTen)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.QuanTri.TaiKhoan)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.ChuDe)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.MoTa)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.BatDau)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.KetThuc)
+                </td>*@
+            <td>
+                @{
+                    if (@item.TrangThai == 0)
+                    {
+                        <h5 style="color:red">Đang chờ xác nhận. </h5>
+                    }
+                    else if (@item.TrangThai == 1)
+                    {
+                        <h5 style="color:orangered">Đã xác nhận lịch </h5>
+                    }
+                    else if (@item.TrangThai == 2)
+                    {
+                        <h5 style="color:gold">Đã tư vấn xong. </h5>
+                    }
+                    else
+                    {
+                        <h5 style="color:red">Lỗi </h5>
+                    }
+
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ZoomInfo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.KetQuaKham)
+            </td>
+            <td>
+                <button class="">
+                    @Html.ActionLink("Xác nhận", "Xacnhanlichhen", new { id = item.IDLichKham })
+                </button>
+            </td>
+        </tr>
+    }
+</table>
+    Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("Kiemtralichhen",
+        new { page }))

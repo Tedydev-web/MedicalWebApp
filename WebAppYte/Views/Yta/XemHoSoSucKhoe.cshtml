@@ -1,0 +1,165 @@
+﻿@model IEnumerable<WebAppYte.Models.HoSoSucKhoe>
+@{
+    ViewBag.Title = "Xem Hồ Sơ Sức Khỏe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@helper FormatKetQua(string ketQua)
+{
+    if (!string.IsNullOrEmpty(ketQua))
+    {
+        var lines = ketQua.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var line in lines)
+        {
+            @:<div>• @line.Trim()</div>
+        }
+    }
+}
+<style>
+    .scrollable-table {
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle !important;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+    .table-bordered th, .table-bordered td {
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .pre-wrap {
+        white-space: pre-wrap;
+    }
+
+    .nowrap {
+        white-space: nowrap;
+        width: auto;
+    }
+</style>
+
+<h2>Xem Hồ Sơ Sức Khỏe</h2>
+
+<div class="scrollable-table">
+    <table class="table table-hover table-striped table-bordered">
+        <thead>
+            <tr>
+                <th class="centered column-border nowrap">Số thứ tự</th>
+                <th class="centered column-border nowrap">Created On</th>
+                <th class="centered column-border nowrap">Age</th>
+                <th class="centered column-border nowrap">Sex</th>
+                <th class="centered column-border nowrap">CP</th>
+                <th class="centered column-border nowrap">TrestBps</th>
+                <th class="centered column-border nowrap">Cholesterol</th>
+                <th class="centered column-border nowrap">FBS</th>
+                <th class="centered column-border nowrap">RestECG</th>
+                <th class="centered column-border nowrap">Thalach</th>
+                <th class="centered column-border nowrap">Exang</th>
+                <th class="centered column-border nowrap">OldPeak</th>
+                <th class="centered column-border nowrap">Slope</th>
+                <th class="centered column-border nowrap">CA</th>
+                <th class="centered column-border nowrap">Thal</th>
+                <th class="centered column-border nowrap">Glucose</th>
+                <th class="centered column-border nowrap">Total Bilirubin</th>
+                <th class="centered column-border nowrap">Direct Bilirubin</th>
+                <th class="centered column-border nowrap">Alkaline Phosphotase</th>
+                <th class="centered column-border nowrap">Alamine Aminotransferase</th>
+                <th class="centered column-border nowrap">Aspartate Aminotransferase</th>
+                <th class="centered column-border nowrap">Total Proteins</th>
+                <th class="centered column-border nowrap">Albumin</th>
+                <th class="centered column-border nowrap">Albumin and Globulin Ratio</th>
+                <th class="centered column-border nowrap">BMI</th>
+                <th class="centered column-border nowrap">BT</th>
+                <th class="centered column-border nowrap">Hearing Ability</th>
+                <th class="centered column-border nowrap">Eyes</th>
+                <th class="centered column-border nowrap">Skin Pigmentation</th>
+                <th class="centered column-border nowrap">Urea</th>
+                <th class="centered column-border nowrap">Creatinine</th>
+                <th class="centered column-border nowrap">Amylase</th>
+                <th class="centered column-border nowrap">Lipase</th>
+                <th class="centered column-border nowrap">Sodium</th>
+                <th class="centered column-border nowrap">Potassium</th>
+                <th class="centered column-border nowrap">Triglycerides</th>
+                <th class="centered column-border nowrap">CRP</th>
+                <th class="centered column-border nowrap">ESR</th>
+                <th class="centered column-border nowrap">SP</th>
+                <th class="centered column-border nowrap">HP</th>
+                <th class="centered column-border nowrap">Body Pain</th>
+                <th class="centered column-border nowrap">Skin</th>
+                <th class="centered column-border nowrap">Insulin</th>
+                <th class="centered column-border nowrap">Chuẩn đoán</th>
+                <th class="centered column-border nowrap">Bác sĩ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int counter = 1;
+            }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="centered column-border">@counter</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.CreateOn)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.age)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.sex)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.cp)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.trestbps)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.chol)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.fbs)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.restecg)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.thalach)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.exang)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.oldpeak)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.slope)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.ca)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.thal)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Glucose)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Total_Bilirubin)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Direct_Bilirubin)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Alkaline_Phosphotase)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Alamine_Aminotransferase)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Aspartate_Aminotransferase)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Total_Protiens)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Albumin)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Albumin_and_Globulin_Ratio)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.BMI)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Bt)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.hearingability)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Eyes)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.skinpig)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.ure)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.creatinine)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Amylase)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Lipase)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Natri)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Kali)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.triglycerides)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.CRP)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.ESR)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.sp)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.hp)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.bodypain)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Skin)</td>
+                    <td class="centered column-border">@Html.DisplayFor(modelItem => item.Insulin)</td>
+                    <td class="centered column-border nowrap">@FormatKetQua(item.KetQua)</td>
+                    <td class="centered column-border nowrap">@Html.DisplayFor(modelItem => item.QuanTri.HoTen)</td>
+                </tr>
+                counter++;
+            }
+        </tbody>
+    </table>
+</div>
+        </div>
+    </div>
+}

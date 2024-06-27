@@ -1,0 +1,115 @@
+﻿@model PagedList.IPagedList<WebAppYte.Models.LichKham>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var u = Session["user"] as WebAppYte.Models.NguoiDung;
+}
+<style type="text/css">
+    .imgavt {
+        margin-right: 15px;
+    }
+</style>
+
+
+<h2>Lịch tư vấn của bạn</h2>
+<h4><i> Chú ý : Thời gian tư vấn tối đa cho mỗi lần tư vấn là : 40 phút</i></h4>
+
+
+
+<div>
+    <button class="btn-default">
+        <b>@Html.ActionLink("Đặt mới", "Create")</b>
+    </button>
+    <button class="btn-default">
+        <a href="@Url.Action("Dangxuly", "LichKham", new { id = u.IDNguoiDung  })">Đang xác nhận</a>
+    </button>
+    <button class="btn-default">
+        <a href="@Url.Action("Daxacnhan", "LichKham", new { id = u.IDNguoiDung  })">Đã xác nhận</a>
+    </button>
+    <button class="btn-default">
+        <a href="@Url.Action("Datuvanxong", "LichKham", new { id = u.IDNguoiDung  })">Đã xong</a>
+    </button>
+    <button class="btn-default">
+        <b> <a href="@Url.Action("lichhen", "LichKham")">Xem dạng lưới</a></b>
+    </button>
+</div>
+
+<br />
+<div style="float:left">
+    <div class="col-md-8">
+
+
+        @foreach (var item in Model)
+        {
+            <img class="imgavt" src="~/images/images/avatar.jpg" width="190" height="190" style="float:left" />
+
+            <b>Người đặt lịch: @item.NguoiDung.HoTen</b>
+            <h4>Bác sĩ tư vấn: @item.QuanTri.HoTen</h4>
+            <h4>Hẹn vào lúc: @item.BatDau.Value.ToString("dd/MM/yyyy HH:mm:ss")</h4>
+            <h4>Nội dung tư vấn : @item.ChuDe</h4>
+
+            {
+                if (@item.TrangThai == 0)
+                {
+                    <h5 style="color:blueviolet"> Đang chờ xác nhận. </h5>
+                    <button>
+                        @Html.ActionLink("Chỉnh sửa", "Edit", new { id = item.IDLichKham })
+                    </button>
+                    <button>
+                        @Html.ActionLink("Xóa lịch", "Delete", new { id = item.IDLichKham })
+                    </button>
+                    <hr />
+                }
+                else if (@item.TrangThai == 1)
+                {
+                    <h5 style="color:red"> Đã xác nhận lịch </h5>
+                    DateTime now = DateTime.Now;
+                    DateTime bd = (DateTime)item.BatDau;
+                    int sosanh = DateTime.Compare(now, bd);
+                    TimeSpan i = bd.Subtract(now);
+                    if (sosanh < 0)
+                    {
+                        <h4>Còn @i.Days ngày: @i.Hours giờ : @i.Minutes phút :@i.Seconds giây</h4>
+                        <button class="btn-success"> Chưa đến giờ tư vấn</button>
+                        <hr />
+                    }
+                    else
+                    {
+                        <h4>Link tư vấn: <button class="btn-info"><a href="@item.ZoomInfo" style="color:white"> BẮT ĐẦU CUỘC GỌI</a></button> </h4>
+                        <hr />
+                    }
+                }
+                else if (@item.TrangThai == 2)
+                {
+                    <h5 style="color:red"> Đã tư vấn xong. </h5>
+                    //<h4>Kết thúc lúc: @item.KetThuc.Value.ToString("dd/MM/yyyy HH:mm:ss")</h4>
+                    <h4>Ghi chú tư vấn : @item.KetQuaKham</h4>
+                    <hr />
+
+                }
+                else
+                {
+                    <h5 style="color:red"> Lỗi </h5>
+                }
+
+            }
+        }
+        <br />
+        <hr />
+    </div>
+
+    <div class="col-md-4">
+        <h4> Tư vấn qua zoom</h4>
+        <img src="~/Common/images/zoom.png" class="img-responsive" />
+    </div>
+</div>
+
+
+
+<br />
+Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page }))

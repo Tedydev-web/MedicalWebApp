@@ -1,0 +1,67 @@
+﻿@model WebAppYte.Models.Solieucovid
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAd.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Solieucovid</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Quocgia)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Quocgia)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Socanhiem)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Socanhiem)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Dangdieutri)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Dangdieutri)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Khoi)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Khoi)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Tuvong)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Tuvong)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Ghichu)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Ghichu)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.IDThongkecovid }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

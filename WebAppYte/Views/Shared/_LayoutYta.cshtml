@@ -1,0 +1,257 @@
+﻿﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/fullcalendarcss")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Common/css/StyleMenu.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="~/Common/Icon/css/all.css" rel="stylesheet" />
+</head>
+<body style="color:black">
+    @using WebAppYte.Models
+    @{
+        var u = Session["user"] as WebAppYte.Models.NguoiDung;
+        var userYT = Session["userYT"] as WebAppYte.Models.QuanTri;
+    }
+    @if (u == null && userYT == null)
+    {
+        <div class="navbar navbar-inverse navbar-fixed-top" style="background-color:#4267B2">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li> <img src="~/Common/images/YTE.jpg" width="100" height="50" alt=""></li>
+                        @*<li>@Html.ActionLink(" TIN TỨC COVID ", "listAll", "Hoidap", null, new { @class = "MauchuMenu" })</li>*@
+                        <li>@Html.ActionLink(" HỎI ĐÁP ONILNE", "listAll", "Hoidap", null, new { @class = "MauchuMenu" })</li>
+                        <li>@Html.ActionLink(" TRUNG TÂM Y TẾ", "Index", "Trungtamyte", null, new { @class = "MauchuMenu" })</li>
+                    </ul>
+                    <ul class="nav navbar-nav">
+                        <li> @Html.ActionLink("ĐĂNG KÝ", "Dangky", "Home", null, new { @class = "MauchuMenu" }) </li>
+                        <li> @Html.ActionLink("ĐĂNG NHẬP", "Dangnhap", "Home", null, new { @class = "MauchuMenu" })</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container body-content">
+            @RenderBody()
+            <hr />
+        </div>
+        <hr />
+        <footer class="bg-info">
+            <div class="row">
+                <div class="col-md-12 col-sm-6">
+                    <CENTER>
+                        <div style="align-content:center">
+                            <h3>TRANG TIN VỀ DỊCH BỆNH VIÊM ĐƯỜNG HÔ HẤP CẤP COVID-19</h3>
+                            <br />
+
+                            Thiết kế bởi : Cường IT
+                            <br />
+                            Số 01/21 Lương Định Của- Trường Thi - Thanh Hóa
+                            ĐT: 0812883636
+                            <br />
+                            Email: Cuongyd196@gmail.com
+                            <br />
+                            Hỗ trợ CNTT
+                            Website được vận hành trên Microsoft Azure
+                        </div>
+                    </CENTER>
+                </div>
+            </div>
+            <hr />
+            <center> <p class="bg-primary">&copy; @DateTime.Now.Year - CườngIT</p></center>
+        </footer>
+
+
+
+    }
+    else
+    {
+        if (u != null && userYT == null)
+        {
+            <div class="navbar navbar-inverse navbar-fixed-top" style="background-color:#4267B2">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li> <img src="~/Common/images/YTE.jpg" width="100" height="50" alt=""></li>
+                            <li>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">HỎI ĐÁP<b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="@Url.Action("Index", "Hoidap", new { id = u.IDNguoiDung  })">CÂU HỎI CỦA BẠN</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="@Url.Action("Cauhoichoxuly", "Hoidap", new { id = u.IDNguoiDung  })">CÂU HỎI CHỜ GIẢI ĐÁP</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="@Url.Action("ListAll", "Hoidap")">TẤT CẢ CÂU HỎI</a></li>
+                                    @*<li class="divider"></li>*@
+                                </ul>
+                            <li>
+                            <li>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">ĐẶT LỊCH HẸN <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="@Url.Action("Index", "LichKham", new { id = u.IDNguoiDung  })">LỊCH HẸN CỦA BẠN</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="@Url.Action("Index", "LichKham")">ĐẶT LỊCH TƯ VẤN VIDEO</a></li>
+                                    @*<li class="divider"></li>*@
+                                </ul>
+                            <li>
+                            <li>@Html.ActionLink(" TRUNG TÂM Y TẾ", "Index", "Trungtamyte", null, new { @class = "MauchuMenu" })</li>
+                            <li>
+                                @Html.ActionLink("DANH SÁCH Y TÁ", "Index", "Yta")
+                            </li>
+                        </ul>
+                        @{
+                            if (u != null)
+                            {
+                                <ul class="nav navbar-nav">
+                                    <li>
+                                        <a style="color:red" href="@Url.Action("Details", "Nguoidung", new { id = u.IDNguoiDung })"> Hồ sơ &nbsp; @u.TaiKhoan</a>
+                                    </li>
+                                    <li> @Html.ActionLink("Đăng Xuất", "DangXuat", "Home", null, new { @class = "MauchuMenu" })</li>
+                                </ul>
+                            }
+                            else
+                            {
+                                <ul class="nav navbar-nav">
+                                    <li> @Html.ActionLink("ĐĂNG KÝ", "Dangky", "Home", null, new { @class = "MauchuMenu" }) </li>
+                                    <li> @Html.ActionLink("ĐĂNG NHẬP", "Dangnhap", "Home", null, new { @class = "MauchuMenu" })</li>
+                                </ul>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="container body-content">
+                @RenderBody()
+            </div>
+            <hr />
+            <footer class="bg-info">
+                <div class="row">
+                    <div class="col-md-12 col-sm-6">
+                        <CENTER>
+                            <div style="align-content:center">
+                                <h3>TRANG TIN VỀ DỊCH BỆNH VIÊM ĐƯỜNG HÔ HẤP CẤP COVID-19</h3>
+                                <br />
+
+                                Thiết kế bởi : Cường IT
+                                <br />
+                                Số 01/21 Lương Định Của- Trường Thi - Thanh Hóa
+                                ĐT: 0812883636
+                                <br />
+                                Email: Cuongyd196@gmail.com
+                                <br />
+                                Hỗ trợ CNTT
+                                Website được vận hành trên Microsoft Azure
+                            </div>
+                        </CENTER>
+                    </div>
+                </div>
+                <hr />
+                <center> <p class="bg-primary">&copy; @DateTime.Now.Year - CườngIT</p></center>
+            </footer>
+        }
+        else
+        {
+            <div class="navbar navbar-inverse navbar-fixed-top" style="background-color:#626BB6">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li> <img src="~/Common/images/YTE.jpg" width="100" height="50" alt=""></li>
+                            <li>
+                                @Html.ActionLink("TRẢ LỜI CÂU HỎI", "Quanlyhoidap", "Yta")
+                            </li>
+                            <li>
+                                @Html.ActionLink("LỊCH TƯ VẤN VIDEO", "Kiemtralichhen", "Yta")
+                            </li>
+                            <li>
+                                @Html.ActionLink("LỊCH HẸN KHÁM", "Kiemtralichhen", "Yta")
+                            </li>
+
+                        </ul>
+                        @{
+                            if (userYT != null)
+                            {
+                                <ul class="nav navbar-nav">
+                                    <li>
+                                        <a style="color:red" href="#"> Y Tá:&nbsp; @userYT.HoTen</a>
+                                    </li>
+                                    <li> @Html.ActionLink("Đăng Xuất", "DangXuatBS", "Home", null, new { @class = "MauchuMenu" })</li>
+                                </ul>
+                            }
+                            else
+                            {
+                                <ul class="nav navbar-nav" style="margin-left:200px">
+                                    <li> @Html.ActionLink("ĐĂNG KÝ", "Dangky", "Home", null, new { @class = "MauchuMenu" }) </li>
+                                    <li> @Html.ActionLink("ĐĂNG NHẬP", "Dangnhap", "Home", null, new { @class = "MauchuMenu" })</li>
+                                </ul>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                @RenderBody()
+                <hr />
+            </div>
+            <footer class="bg-info">
+                <div class="row">
+                    <div class="col-md-12 col-sm-6">
+                        <CENTER>
+                            <div style="align-content:center">
+                                <h3>TRANG TIN VỀ DỊCH BỆNH VIÊM ĐƯỜNG HÔ HẤP CẤP COVID-19</h3>
+                                <br />
+
+                                Thiết kế bởi : Cường IT
+                                <br />
+                                Số 01/21 Lương Định Của- Trường Thi - Thanh Hóa
+                                ĐT: 0812883636
+                                <br />
+                                Email: Cuongyd196@gmail.com
+                                <br />
+                                Hỗ trợ CNTT
+                                Website được vận hành trên Microsoft Azure
+                            </div>
+                        </CENTER>
+                    </div>
+                </div>
+                <hr />
+                <center> <p class="bg-primary">&copy; @DateTime.Now.Year - CườngIT</p></center>
+            </footer>
+        }
+
+    }
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/fullcalendarjs")
+
+    @RenderSection("scripts", required: false)
+
+
+</body>
+</html>

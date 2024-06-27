@@ -1,0 +1,75 @@
+﻿@model WebAppYte.Models.HoiDap
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>HoiDap</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.NguoiDung.HoTen)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NguoiDung.HoTen)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.QuanTri.TaiKhoan)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.QuanTri.TaiKhoan)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CauHoi)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CauHoi)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TraLoi)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TraLoi)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NgayGui)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NgayGui)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.GhiChu)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.GhiChu)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TrangThai)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TrangThai)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.IDHoidap }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

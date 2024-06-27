@@ -1,0 +1,68 @@
+﻿@model IEnumerable<WebAppYte.Models.Tintuc>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAd.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Tieude)
+        </th>
+        @*<th>
+            @Html.DisplayNameFor(model => model.Noidung)
+        </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.Hinhanh)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Mota)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TheLoai)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Ngaydang)
+        </th>
+        <th></th>
+    </tr>
+    
+
+    @foreach (var item in Model)
+    {
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.Tieude)
+    </td>
+    @*<td>
+        @Html.DisplayFor(modelItem => item.Noidung)
+    </td>*@
+    <td>
+        @Html.DisplayFor(modelItem => item.Hinhanh)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Mota)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.TheLoai)
+    </td>
+
+
+    <td>
+        @Html.DisplayFor(modelItem => item.Ngaydang)
+    </td>
+    <td>
+        @Html.ActionLink("Edit", "Edit", new { id = item.IDTintuc }) |
+        @Html.ActionLink("Details", "Details", new { id = item.IDTintuc }) |
+        @Html.ActionLink("Delete", "Delete", new { id = item.IDTintuc })
+    </td>
+</tr>
+    }
+
+</table>

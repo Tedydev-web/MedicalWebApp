@@ -1,0 +1,84 @@
+﻿@model PagedList.IPagedList<WebAppYte.Models.HoiDap>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Traloicauhoi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Câu hỏi chưa trả lời</h2>
+
+
+<table class="table table-bordered">
+    <tr>
+        <th>
+            Người hỏi
+        </th>
+        @*<th>
+                @Html.DisplayNameFor(model => model.QuanTri.TaiKhoan)
+            </th>*@
+        <th>
+            Câu hỏi
+        </th>
+        <th>
+            Trả lời
+        </th>
+        <th>
+            Ngày gửi
+        </th>
+        <th>
+            Ghi chú
+        </th>
+        <th>
+            Trạng thái
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NguoiDung.HoTen)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.QuanTri.TaiKhoan)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.CauHoi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TraLoi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NgayGui)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GhiChu)
+            </td>
+            <td>
+                @{
+                    if (item.TrangThai == 0)
+                    {
+                        <h5 style="color:red">Chưa trả lời</h5>
+                    }
+                    if (item.TrangThai == 1)
+                    {
+                        <h5 style="color:red">Đã trả lời</h5>
+                    }
+                 }
+                    </td>
+            <td>
+                <button>
+                    @Html.ActionLink("Trả lời ngay ", "Traloicauhoi", new { id = item.IDHoidap })
+                </button>       
+            </td>
+        </tr>
+    }
+
+</table>
+<br />
+    Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("listAll",
+        new { page }))

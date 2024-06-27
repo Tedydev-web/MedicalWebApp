@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Y tá";
+    Layout = "~/Views/Shared/_LayoutYta.cshtml";
+
+}
+@using WebAppYte.Models
+@{
+    var u = Session["user"] as WebAppYte.Models.NguoiDung;
+    var userYT = Session["userYT"] as WebAppYte.Models.QuanTri;
+}
+<br />
+@{
+    if (u != null)
+    {
+        <div>
+            <h3>Chúc mừng bạn @u.HoTen đã đăng nhập thành công.</h3>
+            <br />
+            Cập nhật thông tin cá nhân ngay!.
+            <a class="btn-success" href="@Url.Action("Details", "Nguoidung", new { id = u.IDNguoiDung })"> Click </a>
+        </div>
+    }
+    else
+    {
+        <center> <img src="~/Common/images/bs.jpg" /></center>
+        <div>
+            @if (userYT != null)
+            {
+                <center><h3> Y tá <span style="color: #FF0000">@userYT.HoTen</span> đã đăng nhập thành công.</h3></center>
+            }
+
+            <br />
+            <center>
+                @if (userYT != null)
+                {
+                    <a href="@Url.Action("Kiemtralichhen", "Yta")" class="btn btn-primary">Hỗ trợ bác sĩ ngay!</a>
+                }
+            </center>
+        </div>
+    }
+}

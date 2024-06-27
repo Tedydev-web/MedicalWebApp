@@ -1,0 +1,68 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<div id="calendar"> </div>
+
+@section Scripts{
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/gcal.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var events = [];
+            console.log('11111', events)
+            $.ajax({
+                url: '/Lichkham/Lichdangluoi',
+                type: "GET",
+                dataType: "JSON",
+                success: function (data) {
+                    $.each(data, function (i, v) {
+                        events.push(
+                            {
+                                title: v.ChuDe,
+                                description: v.MoTa,
+                                start: moment(v.BatDau),
+                                end: v.KetThuc != null ? moment(v.KetThuc) : null,
+                            });
+                    })
+                    callback(events);
+                },
+                error: function (error) {
+                    alert('fail')
+                }
+            })
+            function callback(events) {
+                $('#calendar').fullCalendar({
+                    theme: true,
+                    timeFormat: 'h(:mm)a',
+                    header:
+                    {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                    },
+                    //defaultView: 'agendaDay',
+                    editable: false,
+                    events: "/Lichkham/Lichdangluoi"
+                });
+
+            }
+
+        });
+
+    </script>
+
+}
+
+
+
+
+
+
+
